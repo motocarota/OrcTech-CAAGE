@@ -54,8 +54,9 @@
 				setPath( new CAAT.PathUtil.Path().setLinear( 
 					director.width-50, 
 					(director.height/4)+Math.random()*(director.height*3/4), 
-					game.player.x +30, 
-					game.player.y +roll( 1, 20 )) ).
+					game.player.x + (game.player.width/2), 
+					game.player.y + roll( 1, 50 )
+				) ).
 				addListener( {
 					behaviorExpired : function( behaviour, time ) {
 						e.range = true;

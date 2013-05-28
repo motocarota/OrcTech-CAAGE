@@ -42,7 +42,12 @@
 				
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
 				this.travel.path = new CAAT.PathUtil.Path( ).
-					setLinear( game.player.x, game.player.y, this.dest.x, this.dest.y );
+					setLinear( 
+						game.player.x + game.player.width, 
+						game.player.y + (game.player.height/2), 
+						this.dest.x, 
+						this.dest.y 
+					);
 			}
 		
 			if ( data.initEffect ){
