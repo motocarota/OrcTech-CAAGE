@@ -1,6 +1,6 @@
 (function() {	
 	
-	var _DEBUG = false;
+	var _DEBUG = 1;
 	var _BASE_SPEED = 10000,
 		_BASE_MULT_SPEED = 0.3;
 	
@@ -43,8 +43,8 @@
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
 				this.travel.path = new CAAT.PathUtil.Path( ).
 					setLinear( 
-						game.player.x + game.player.width, 
-						game.player.y + (game.player.height/2), 
+						game.player.x + game.player.width/2, 
+						game.player.y,
 						this.dest.x, 
 						this.dest.y 
 					);
@@ -125,7 +125,6 @@
 			this.setDiscardable(true).setExpired(true);
 		},
 		
-		
 		land: function ( ) {
 
 			if( _DEBUG ) CAAT.log( "[Spell] "+this.id+' is landed!' );
@@ -156,9 +155,40 @@
 				gameScene.time,
 				this.splash.duration, 
 				null,
-				gameScene.checkCollisions( this ),
+				this.checkCollisions( ),
 				null
 			);
+		},
+		
+		checkCollisions: function( ) {
+			
+			if ( _DEBUG ) CAAT.log("[Spell] Check Collisions between "+this.id+" and "+game.enemies.length+" enemies" );
+			// var max = Math.max( director.width, director.height );
+			var entitiesCollision = new CAAT.Module.Collision.QuadTree().create( 
+				0, 0, 
+				director.width  * ( game.options.cell_size || 20 ), 
+				director.height * ( game.options.cell_size || 20 ), 
+				game.enemies 
+			);
+
+			var collide = entitiesCollision.getOverlappingActors( 
+				new CAAT.Rectangle().setBounds( 
+					this.x - ( this.width / 2 ), 
+					this.y - ( this.height / 2 ), 
+					this.width, 
+					this.height )
+			);
+			if ( collide.length ) {
+				for ( var i = collide.length - 1; i >= 0; i-- ) {
+					if ( this.targets[ collide[i].id ] !== true ) {
+						this.targets[ collide[i].id ] = true;
+						this.splash.effect( collide[i] );
+						if ( _DEBUG ) CAAT.log("[Spell] Collision Found: "+this.id+" hits "+collide[i].id );
+					}
+				};
+			} else {
+				if ( _DEBUG ) CAAT.log("[Spell] No collision Found for "+this.id );
+			}
 		}
 	};
 	

@@ -31,5 +31,5 @@ Open Source and MIT Licensed.
 
 ##Author##
 
-Simone Poggi ( http://simone-poggi.com/ ) - All rights reserved.
+Simone Poggi - http://simone-poggi.com/ - All rights reserved.
 

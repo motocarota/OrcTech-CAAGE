@@ -76,10 +76,6 @@
 			setLocation( 300, 300 );
 		menuScene.addChild( btn );
 
-		gameScene.activated = function( ) {
-			director.setClear( false );
-		}
-		
 		gameScene.checkCollisions = function( entity ) {
 			
 			if ( _DEBUG ) CAAT.log("[Main] CheckCollision ");
@@ -227,6 +223,7 @@
 		gameScene.addChild( game.UI.pauseBtn );
 		gameScene.addChild( game.UI.healthBar );
 		gameScene.addChild( game.UI.manaBar );
+		game.player.notify( 'Game start!' );
 	}
 	
 	

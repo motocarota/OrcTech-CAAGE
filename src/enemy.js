@@ -31,7 +31,7 @@
 			
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
-			this.speed = game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : game.options.enemies.multSpeed ) );
+			this.speed = game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) );
 			this.label = new CAAT.Foundation.UI.TextActor( );
 			
 		},

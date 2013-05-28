@@ -48,7 +48,7 @@ game.spellBook = {
 		initPath: function ( x, y ) {
 			return [ 
 				new CAAT.PathUtil.Path( ).
-					beginPath( game.player.x, game.player.y ).
+					beginPath( game.player.x+( game.player.width / 2 ), game.player.y ).
 					addCubicTo( 
 						Math.random() * director.width, 
 						Math.random() * director.height, 
@@ -76,7 +76,7 @@ game.spellBook = {
 				frame: { w: 2, h: 2 }
 			},
 			animation: {
-				frames: [0,1,2,3], duration: 250
+				frames: [0,1,2,3,0,2,3,1], duration: 100
 			}
 		},
 		
@@ -87,7 +87,7 @@ game.spellBook = {
 				frame: { w: 3, h: 2 }
 			},
 			animation: {
-				frames: [0,1,2,3,4,5], duration: 150
+				frames: [0,1,2,3,4,5], duration: 100
 			}
 		},
 		
@@ -181,7 +181,7 @@ CAAT.Mage.prototype = {
 	
 	castSpell : function ( id, x, y ) {
 		
-		if ( _DEBUG ) console.log('[Player] casts a spell');
+		if ( _DEBUG ) CAAT.log('[Player] casts a spell id:'+id+' at( '+x+','+y+' )');
 		var spell = null;
 		
 		if ( !this.cooldowns[ id ] || this.cooldowns[ id ] < 0 ) {
@@ -192,10 +192,12 @@ CAAT.Mage.prototype = {
 				this.mana -= spell.cost;
 				this.cooldowns[ id ] = spell.cooldown;
 			} else { 
-				console.log( "[Player] out of mana "+this.mana+" / "+spell.cost ) 
+				CAAT.log( "[Player] out of mana "+this.mana+" / "+spell.cost )
+				game.player.notify('Out of mana!');
 			}
 		} else {  
-			if ( _DEBUG ) console.log('[Player] cant cast because the spell is in cooldown '+this.cooldowns[ id ] );
+			if ( _DEBUG ) CAAT.log('[Player] cant cast because the spell is in cooldown '+this.cooldowns[ id ] );
+			game.player.notify('Spell in cooldown!');
 		}
 		return spell;
 	},
