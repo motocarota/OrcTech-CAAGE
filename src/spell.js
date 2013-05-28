@@ -1,6 +1,7 @@
 (function() {	
 	
-	var _DEBUG = 1;
+	var _DEBUG = false;
+	
 	var _BASE_SPEED = 10000,
 		_BASE_MULT_SPEED = 0.3;
 	
@@ -8,6 +9,56 @@
 
 		CAAT.Spell.superclass.constructor.call( this );
 
+		this.level = 			1;
+		this.cost = 			10;
+		this.element =			"undefined";
+		this.school =			"undefined";
+		this.cooldown =			1;
+		this.icon = 			null;
+		this.targets =			{};
+		this.travel = {
+			duration: 			500,
+			image: 	{
+				name: 			'base', 
+				sprite: 		null,
+				frame: {
+					h:			1,
+					w:			1
+				},
+				anchor : {
+					x : 		0,
+					y : 		0
+				},
+				rotation : 		false
+			},
+			animation: {
+				frames: 		[0],
+				duration: 		500
+			}
+		};
+		this.splash = {
+			duration:			500,
+			path:				null,
+			interpolator:		null,
+			image: {
+				name: 			null,
+				sprite: 		null,
+				frame : {
+					h : 		1,
+					w : 		1
+				},
+				anchor : {
+					x : 		0,
+					y : 		0 
+				},
+				rotation : 		false
+			},
+			animation: {
+				frames: 		[0],
+				duration: 		500
+			}
+		};
+	
 		this.typeId = id || 0;
 		this.dest = {
 			x: x || director.width/2,
@@ -25,12 +76,8 @@
 			var name = game.spellList[ this.typeId ];
 			
 			if ( _DEBUG ) CAAT.log("[Spell] Setup ( "+this.typeId+" -> "+name+" ) -> ", game.spellBook[ name ] );
-			var data = deepExtend( baseSpellData(), game.spellBook[ name ] );
-			
-			for ( p in data ) {
-				this[ p ] = data[ p ];
-			}
-			
+
+			var data = deepExtend( this, game.spellBook[ name ] );
 			if ( data.initPath ){
 				
 				if ( _DEBUG ) CAAT.log( "[Spell] custom Path" );
@@ -125,6 +172,7 @@
 			this.setDiscardable(true).setExpired(true);
 		},
 		
+		
 		land: function ( ) {
 
 			if( _DEBUG ) CAAT.log( "[Spell] "+this.id+' is landed!' );
@@ -159,6 +207,7 @@
 				null
 			);
 		},
+		
 		
 		checkCollisions: function( ) {
 			

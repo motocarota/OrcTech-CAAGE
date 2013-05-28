@@ -1,4 +1,5 @@
-(function() {	
+(function() {
+	
 	var _DEBUG = false;
 	
 	CAAT.Player = function( ) {

@@ -1,5 +1,5 @@
-
 (function() {	
+	
 	var _DEBUG = false;
 	
 	CAAT.Enemy = function( ){

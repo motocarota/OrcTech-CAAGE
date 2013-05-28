@@ -1,6 +1,6 @@
-
 (function() {	
-	var _DEBUG = true;
+
+	var _DEBUG = false;
 	
 	CAAT.Drop = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );

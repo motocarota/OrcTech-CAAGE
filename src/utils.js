@@ -4,62 +4,6 @@ var DEFAULT_NUM = 1,
 	DEFAULT_DICE = 6,
 	DEFAULT_BONUS = 0;
 
-function baseSpellData() {
-	
-	// standar base spell to start with, every spell in the game is based on this
-	return {
-		level : 				1,
-		cost : 					10,
-		element: 				"undefined",
-		school:					"undefined", 
-		cooldown: 				1,
-		icon: 					null,
-		targets: 				{},
-		travel : {
-			duration: 			500,
-			image: 	{
-				name: 			'base', 
-				sprite: 		null,
-				frame: {
-					h:			1,
-					w:			1
-				},
-				anchor : {
-					x : 		0,
-					y : 		0
-				},
-				rotation : 		false
-			},
-			animation: {
-				frames: 		[0],
-				duration: 		500
-			}
-		},
-		splash : {
-			duration:			500,
-			path:				null,
-			interpolator:		null,
-			image: {
-				name: 			null,
-				sprite: 		null,
-				frame : {
-					h : 		1,
-					w : 		1
-				},
-				anchor : {
-					x : 		0,
-					y : 		0 
-				},
-				rotation : 		false
-			},
-			animation: {
-				frames: 		[0],
-				duration: 		500
-			}
-		}
-	};
-};
-	
 function roll( num, dice, bonus ){
 
 	// Returns rolls NUM d DICE plus BONUS (ex. roll( 3, 6, 5 ) -> 3d6+5 )
