@@ -37,7 +37,6 @@
 			this.setLocation( 
 				game.options.player.startingX || director.width/2, 
 				game.options.player.startingY || director.height/2 ).
-				setPositionAnchor( 0.5, 0.5 ).
 				enableEvents( false ).
 				setBackgroundImage( this.sprite );
 			game.bg.addChild( this );

@@ -88,10 +88,11 @@
 			} else {
 				
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
+				//NOTE we use these starting values for the path because we consider using position anchors set at 0, 0
 				this.travel.path = new CAAT.PathUtil.Path( ).
 					setLinear( 
 						game.player.x + game.player.width/2, 
-						game.player.y,
+						game.player.y + game.player.height/2,
 						this.dest.x, 
 						this.dest.y 
 					);

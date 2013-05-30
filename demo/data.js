@@ -48,7 +48,7 @@ game.spellBook = {
 		initPath: function ( x, y ) {
 			return [ 
 				new CAAT.PathUtil.Path( ).
-					beginPath( game.player.x+( game.player.width / 2 ), game.player.y ).
+					beginPath( game.player.x +game.player.width/2, game.player.y +game.player.height/2 ).
 					addCubicTo( 
 						Math.random() * director.width, 
 						Math.random() * director.height, 

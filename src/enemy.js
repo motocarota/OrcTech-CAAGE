@@ -54,8 +54,8 @@
 				setPath( new CAAT.PathUtil.Path().setLinear( 
 					director.width-50, 
 					(director.height/4)+Math.random()*(director.height*3/4), 
-					game.player.x + (game.player.width/2), 
-					game.player.y + roll( 1, 50 )
+					game.player.x + game.player.width, 
+					game.player.y + roll( 1, game.player.height )
 				) ).
 				addListener( {
 					behaviorExpired : function( behaviour, time ) {
@@ -63,15 +63,16 @@
 					}
 				} );
 
-			if ( this.animations && this.animations.walk ) {
-				if ( _DEBUG ) CAAT.log('[Enemy] Adding walk animation');
-				this.sprite.addAnimation( 'walk', this.animations.walk.frames, this.animations.walk.duration );
+			if ( this.animations && this.animations !== {} ){
+				var a = null;
+				for ( id in this.animations ) {
+					a = this.animations[ id ];
+					if ( a ) {
+						if ( _DEBUG ) CAAT.log('[Enemy] Adding '+id+' animation');
+						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
+					}
+				}
 			}
-			if ( this.animations && this.animations.attack ) {
-				if ( _DEBUG ) CAAT.log('[Enemy] Adding attack animation');
-				this.sprite.addAnimation( 'attack', this.animations.attack.frames, this.animations.attack.duration );
-			}
-
 			this.setBackgroundImage( this.sprite, true ).
 				enableEvents( false ).
 				setPositionAnchor( 0.5, 0.5 ).
