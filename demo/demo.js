@@ -119,7 +119,7 @@
 			cacheAsBitmap( );
 			
 		gameScene.addChild( game.bg );
-		game.bg.addChild( game.fg );
+		gameScene.addChild( game.fg );
 		
 		game.bg.mouseDown = function( ev ) {
 			game.player.castSpell( game.spellIndex, ev.point.x, ev.point.y );
@@ -136,7 +136,7 @@
 	
 	function setupTimers () { 
 		
-		game.time = game.options.tick_time;
+		game.time = game.options.global_cooldown;
 		game.mainTimer = gameScene.createTimer(
 			0,
 			Number.MAX_VALUE, 
@@ -144,7 +144,7 @@
 			function(){ 
 				if( game.time-- < 0 ) {
 					tick();
-					game.time = game.options.tick_time;
+					game.time = game.options.global_cooldown;
 				} 
 			},
 			null 
@@ -241,6 +241,7 @@
 		if ( game.enemies.length < game.options.enemies.maxNumber && Math.random() < (game.options.enemies.spawnRate || 0.2) ) {
 			var enemy = new CAAT.Enemy( );
 			enemy.add( game.enemiesList[ roll( 1, game.enemiesList.length )-1 ] );
+			enemy.move( );
 		}
 		
 		//UPDATE UI

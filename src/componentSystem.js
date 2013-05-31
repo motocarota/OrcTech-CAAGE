@@ -5,7 +5,6 @@
 */
 (function() {
 
-	window.game = {};
 	game.component = {};
 	game.createEntity = function( properties, components ) {
 

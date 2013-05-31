@@ -3,6 +3,17 @@ var _DEBUG = false;
 var DEFAULT_NUM = 1,
 	DEFAULT_DICE = 6,
 	DEFAULT_BONUS = 0;
+	
+function getDistance ( en0, en1 ) {
+
+	if ( !en0 || !en1 ) {
+		CAAT.log( '[Utils] getDistance: bad arguments: ',en0, en1 );
+		return -1;
+	}
+	var dx = en0.x - en1.x;
+	var dy = en0.y - en1.y;
+	return Math.floor( Math.sqrt( dx*dx + dy*dy ) );
+}
 
 function roll( num, dice, bonus ){
 

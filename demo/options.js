@@ -5,7 +5,7 @@ function setupOptions( ) {
 		volume :			10,
 		font :				"Arial",
 		cell_size: 			30,
-		tick_time :			40, 	// change this to determine how often the game should call tick() method
+		global_cooldown :	50,		// determine how often the game calls the tick() method
 		player: {
 			startingX: 		80,
 			startingY: 		180,
@@ -16,7 +16,7 @@ function setupOptions( ) {
 			spawnRate: 		0.5,
 			maxNumber: 		10,
 			wave: 			60, 	// How many enemies spawn until the game is over
-			baseSpeed : 	50000 	// base enemy speed
+			baseSpeed : 	100 	// base enemy speed
 		}
 	};
-}
+};

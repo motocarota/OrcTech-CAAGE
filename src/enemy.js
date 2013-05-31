@@ -1,6 +1,7 @@
 (function() {	
 	
-	var _DEBUG = false;
+	var _DEBUG = 		false;
+	var _SHOW_PATH = 	false;
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -19,8 +20,10 @@
 		attackSpeed: 	6, 
 		cooldown: 		6,
 		element: 		"physical",
-		range: 			false,
+		range: 			200,
 		label: 			null,
+		moving: 		false,
+		
 		
 		setup : function( ){
 			
@@ -29,16 +32,18 @@
 				this[ p ] = data[ p ];
 			}
 			
+			this.x = director.width + this.width;
+			this.y = (director.height/4)+Math.random()*(director.height*3/4);
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
-			this.speed = game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) );
+			this.speed = Math.floor( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) );
 			this.label = new CAAT.Foundation.UI.TextActor( );
 			
 		},
-				
+		
+		
 		add : function( type ) {
 			
-			var e = this;
 			this.type = type;
 			this.setup( );
 			
@@ -47,54 +52,92 @@
 				this.frameH || 1, 
 				this.frameW || 1 
 			);
-				
-			var pbenemy= new CAAT.Behavior.PathBehavior().
-				setFrameTime( gameScene.time, this.speed ).
-				setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
-				setPath( new CAAT.PathUtil.Path().setLinear( 
-					director.width-50, 
-					(director.height/4)+Math.random()*(director.height*3/4), 
-					game.player.x + game.player.width, 
-					game.player.y + roll( 1, game.player.height )
-				) ).
-				addListener( {
-					behaviorExpired : function( behaviour, time ) {
-						e.range = true;
-					}
-				} );
-
+			
 			if ( this.animations && this.animations !== {} ){
+				
 				var a = null;
+				
 				for ( id in this.animations ) {
 					a = this.animations[ id ];
 					if ( a ) {
-						if ( _DEBUG ) CAAT.log('[Enemy] Adding '+id+' animation');
-						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
+						// if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' has now '+id+' animation');
+						if ( id === 'attack' ) {
+							this.sprite.addAnimation( id, a.frames, a.duration, function ( s ) { s.playAnimation( 'stand' ) } );
+						} else {
+							this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
+						}
 					}
 				}
 			}
+			
 			this.setBackgroundImage( this.sprite, true ).
 				enableEvents( false ).
-				setPositionAnchor( 0.5, 0.5 ).
-				addBehavior( pbenemy );
+				setPositionAnchor( 0.5, 0.5 );
 			
 			game.bg.addChildAt( this, this.y );
 			game.bg.addChild( this.label );
 			
 			this.index = game.enemies.push( this );
-			this.playAnimation( 'walk' );
+			this.playAnimation( 'stand' );
+			
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is added" );
-
 		},
-				
+		
+		halt: function () {
+			
+			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" halts at "+this.x+","+this.y );
+			this.emptyBehaviorList( );
+			moving = false;
+			this.playAnimation( 'stand' );
+		},
+		
+		move: function ( x, y ) {
+			
+			var dest = {};
+			if ( this.target ) {
+				dest.x = x || this.target.x + this.target.width/2;
+				dest.y = y || this.target.y + roll( 1, this.target.height );
+			}
+			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is moving to "+dest.x+","+dest.y );
+			
+			this.path = new CAAT.PathUtil.Path().setLinear( 
+				this.x, this.y, 
+				dest.x, dest.y
+			);
+			
+			var t = getDistance( this, dest )*this.speed;
+			var e = this;
+			this.pathBehavior = new CAAT.Behavior.PathBehavior().
+				setFrameTime( gameScene.time, t ).
+				setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
+				setPath( this.path ).
+				addListener( {
+					behaviorExpired : function( behaviour, time ) {
+						e.attack( );
+					}
+				} 
+				);
+			
+			this.addBehavior( this.pathBehavior );
+			moving = true;
+			this.playAnimation( 'walk' );
+		},
+		
+		
 		attack: function( ) { 
 			
-			this.cooldown = this.attackSpeed;
-			this.target.damage( roll( this.level ), this.element );
-			this.playAnimation( 'attack' );
-			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking!" );
+			if ( this.range > getDistance( this, this.target ) ) {
+				
+				this.halt( );
+				this.target.damage( roll( this.level ), this.element );
+				this.cooldown = this.attackSpeed;
+				this.playAnimation( 'attack' );
+			
+				if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking!" );
+			}
 		},
-
+		
+		
 		damage: function( amount, element ) {
 			
 			if ( this.damageFilter ) {
@@ -128,7 +171,8 @@
 				this.die();
 			}
 	    },
-	
+		
+		
 		die: function( amount ) {
 			
 			if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+' is now dead!' );
@@ -144,11 +188,20 @@
 			return false;
 		},
 		
+		
 		tick : function() {
 			
-			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" tick");
-			if ( this.cooldown-- <= 0 && this.range ){
-				this.attack(); 
+			if ( !moving && this.cooldown-- <= 0 ) {
+				this.attack( );
+			}
+			
+			if ( _DEBUG && _SHOW_PATH ) {
+				game.bg.addChild( new CAAT.PathActor().
+					setPath( this.path ).
+					setFrameTime( gameScene.time, 400 ).
+					setBounds( 0, 0, director.width, director.height ).
+					setInteractive( false )
+				);
 			}
 		}
 	};

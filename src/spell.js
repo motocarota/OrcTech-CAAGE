@@ -1,6 +1,7 @@
 (function() {	
 	
-	var _DEBUG = false;
+	var _DEBUG = 		false;
+	var _SHOW_PATH = 	false;
 	
 	var _BASE_SPEED = 10000,
 		_BASE_MULT_SPEED = 0.3;
@@ -88,16 +89,24 @@
 			} else {
 				
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
-				//NOTE we use these starting values for the path because we consider using position anchors set at 0, 0
 				this.travel.path = new CAAT.PathUtil.Path( ).
 					setLinear( 
 						game.player.x + game.player.width/2, 
-						game.player.y + game.player.height/2,
+						game.player.y,
 						this.dest.x, 
 						this.dest.y 
 					);
 			}
-		
+			
+			if ( _DEBUG && _SHOW_PATH ) {
+				gameScene.addChild( new CAAT.PathActor().
+					setPath( this.travel.path ).
+					setFrameTime( gameScene.time, this.travel.duration ).
+					setBounds( 0, 0, director.width, director.height ).
+					setInteractive( false )
+				);
+			}
+			
 			if ( data.initEffect ){
 				
 				var c = data.initEffect( );
@@ -112,6 +121,7 @@
 					if ( _DEBUG ) CAAT.log( "[Spell] Base effect applied on "+target.id );
 				};
 			}
+			
 			this.id = name+roll( 1, 999 );
 			this.name = name;
 		},

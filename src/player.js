@@ -16,8 +16,6 @@
 		},
 
 		this.label = new CAAT.Foundation.UI.TextActor( );
-		this.label.setFont( "26px "+game.options.font ).
-			setLocation( this.x, this.y );
 		
 		return this;
 	}
@@ -38,8 +36,14 @@
 				game.options.player.startingX || director.width/2, 
 				game.options.player.startingY || director.height/2 ).
 				enableEvents( false ).
+				setPositionAnchor( 0.5, 0.5 ).
 				setBackgroundImage( this.sprite );
-			game.bg.addChild( this );
+			
+			this.label.setFont( "26px "+game.options.font ).
+				setLocation( this.x, this.y );
+				
+			game.bg.addChildAt( this, this.y );
+			game.bg.addChild( this.label );
 		},
 		
 		heal : function ( amount ) {

@@ -48,7 +48,7 @@ game.spellBook = {
 		initPath: function ( x, y ) {
 			return [ 
 				new CAAT.PathUtil.Path( ).
-					beginPath( game.player.x +game.player.width/2, game.player.y +game.player.height/2 ).
+					beginPath( game.player.x +game.player.width/2, game.player.y ).
 					addCubicTo( 
 						Math.random() * director.width, 
 						Math.random() * director.height, 
@@ -116,6 +116,9 @@ game.enemiesBook = {
 		frameW: 4, 
 		frameH: 2,
 		animations: {
+			stand: {
+				frames: [0], duration: 300
+			},
 			walk: {
 				frames: [0,1,2,3], duration: 300
 			},
@@ -134,11 +137,14 @@ game.enemiesBook = {
 		frameW: 4, 
 		frameH: 2,
 		animations: {
+			stand: {
+				frames: [4], duration: 300
+			},
 			walk: {
 				frames: [0,1,2,3], duration: 200
 			},
 			attack: {
-				frames: [4,5,6,7,0,0,0,1], duration: 150
+				frames: [4,5,6,7], duration: 150
 			}
 		},
 		damageFilter: function( amount ) {
