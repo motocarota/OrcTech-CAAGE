@@ -60,14 +60,18 @@
 				for ( id in this.animations ) {
 					a = this.animations[ id ];
 					if ( a ) {
-						// if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' has now '+id+' animation');
-						if ( id === 'attack' ) {
-							this.sprite.addAnimation( id, a.frames, a.duration, function ( s ) { s.playAnimation( 'stand' ) } );
-						} else {
-							this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
+						if ( id === 'attack' && !a.reset ) {
+							a.reset = function ( s ) { s.playAnimation( 'stand' ) };
 						}
+						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
 					}
 				}
+				// if ( !this.animations[ 'die' ] ) {
+				// 	this.sprite.addAnimation( 'die', 0, 200, function ( s ) {
+				// 		s.setDiscardable(true).setExpired(true);
+				// 		s.label.setDiscardable(true).setExpired(true);
+				// 	} );
+				// }
 			}
 			
 			this.setBackgroundImage( this.sprite, true ).
@@ -154,11 +158,11 @@
 				setLocation( this.x, this.y ).
 				setText( "-"+amount ).
 				setTextFillStyle( "yellow" );
-				
+			
 			this.label.addBehavior( 
 				new CAAT.Behavior.AlphaBehavior().
 					setFrameTime( gameScene.time, 900 ).
-					setValues( 1, 0 ) 
+					setValues( 1, 0 )
 			);
 			
 			this.label.addBehavior( 
@@ -176,8 +180,8 @@
 		die: function( amount ) {
 			
 			if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+' is now dead!' );
-			this.label.setDiscardable(true).setExpired(true);
 			this.setDiscardable(true).setExpired(true);
+			this.label.setDiscardable(true).setExpired(true);
 			for ( var i = game.enemies.length - 1; i >= 0; i-- ) {
 				if ( game.enemies[i].id === this.id ) {
 					game.enemies.splice( i, 1 );
@@ -185,13 +189,14 @@
 					return true;
 				}
 			}
+			// this.playAnimation( 'die' );
 			return false;
 		},
 		
 		
 		tick : function() {
 			
-			if ( !moving && this.cooldown-- <= 0 ) {
+			if ( this.cooldown-- <= 0 ) {
 				this.attack( );
 			}
 			

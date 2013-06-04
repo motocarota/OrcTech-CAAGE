@@ -91,7 +91,7 @@
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
 				this.travel.path = new CAAT.PathUtil.Path( ).
 					setLinear( 
-						game.player.x + game.player.width/2, 
+						game.player.x, 
 						game.player.y,
 						this.dest.x, 
 						this.dest.y 
