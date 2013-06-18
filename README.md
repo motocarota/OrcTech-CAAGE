@@ -15,11 +15,16 @@ You can read the full article here: ( http://buildnewgames.com/js-game-code-org/
 
 ##Demo##
 
-In the 'demo' folder you can check for a simple game made with this game engine. 
+In the 'demo' folder you can check for a simple game made with this game engine.
+You have a few files to check:
+
+* mage.js : Extends "Player" class
+* demo.js : Main game file, defines background, UI and enemies generation
+* data.js : Defines enemies and spell information
 
 ## Documentation
 
-Work in progress.
+Will be released Soon(tm).
 
 ## Contributing
 

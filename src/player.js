@@ -11,7 +11,7 @@
 		this.y = 0;
 		this.image = {
 			name: 	'player',
-			frameH: 1,
+			frameH: 1, 
 			frameW: 1
 		},
 
@@ -97,6 +97,11 @@
 		notify : function ( text ) {
 
 			if( _DEBUG ) CAAT.log('[Player] Notify this: "'+text+'"');
+			
+			if ( !text ) {
+				CAAT.log( '[Player] notify: Nothing to say' );
+				return;
+			}
 			game.UI.mainString.behaviorList = [];
 			game.UI.mainString.
 				setText( text ).
@@ -114,10 +119,40 @@
 		},
 		
 		
+		notifyAt : function ( text, pos ) {
+			
+			if ( !pos )
+				this.notify( text );
+			
+			if( _DEBUG ) CAAT.log('[Player] Notify this: "'+text+'" at '+pos.x+","+pos.y);
+			var x = pos.x - 20 + roll( 1, 40 ); //randomize a little text position
+			var label = new CAAT.Foundation.UI.TextActor( ).
+				setFrameTime( gameScene.time, 900 ).
+				setFont("26px "+game.options.font ).
+				setLocation( x, pos.y ).
+				setText( text ).
+				setTextFillStyle( "yellow" );
+						
+			label.addBehavior( 
+				new CAAT.Behavior.AlphaBehavior().
+					setFrameTime( gameScene.time, 900 ).
+					setValues( 1, 0 )
+			);
+			
+			label.addBehavior( 
+				new CAAT.Behavior.PathBehavior( ).
+					setPath( new CAAT.PathUtil.Path( ).
+					setLinear( x, pos.y-20, x, pos.y-40 ) ).
+					setFrameTime( gameScene.time, 900 )
+			);
+			
+			game.bg.addChild( label );
+		},
+		
+		
 		tick : function () {
 			if ( _DEBUG ) CAAT.log( '[Player] Tick' );
-			// Tick is a useful method to manage timed events and effect durations
-			// this will be called every game.options.tick_time game.loop
+			// Tick is called periodically to manage timed events and effect durations
 		},
 		
 		

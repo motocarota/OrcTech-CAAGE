@@ -12,25 +12,19 @@
 
 		this.level = 			1;
 		this.cost = 			10;
-		this.element =			"undefined";
-		this.school =			"undefined";
+		this.element =			"unknown";
+		this.school =			"unknown";
 		this.cooldown =			1;
 		this.icon = 			null;
 		this.targets =			{};
 		this.travel = {
 			duration: 			500,
+			rotation : 			false,
 			image: 	{
 				name: 			'base', 
 				sprite: 		null,
-				frame: {
-					h:			1,
-					w:			1
-				},
-				anchor : {
-					x : 		0,
-					y : 		0
-				},
-				rotation : 		false
+				frame: 			{ h: 1, w: 1 },
+				anchor : 		{ x: 0, y: 0 }
 			},
 			animation: {
 				frames: 		[0],
@@ -39,20 +33,14 @@
 		};
 		this.splash = {
 			duration:			500,
+			rotation : 			false,
 			path:				null,
 			interpolator:		null,
 			image: {
 				name: 			null,
 				sprite: 		null,
-				frame : {
-					h : 		1,
-					w : 		1
-				},
-				anchor : {
-					x : 		0,
-					y : 		0 
-				},
-				rotation : 		false
+				frame: 			{ h: 1, w: 1 },
+				anchor : 		{ x: 0, y: 0 }
 			},
 			animation: {
 				frames: 		[0],
@@ -91,10 +79,8 @@
 				if ( _DEBUG ) CAAT.log( "[Spell] standard path" )
 				this.travel.path = new CAAT.PathUtil.Path( ).
 					setLinear( 
-						game.player.x, 
-						game.player.y,
-						this.dest.x, 
-						this.dest.y 
+						game.player.x, game.player.y,
+						this.dest.x, this.dest.y 
 					);
 			}
 			
@@ -107,14 +93,11 @@
 				);
 			}
 			
-			if ( data.initEffect ){
-				
+			if ( data.initEffect ) {
 				var c = data.initEffect( );
 				this.travel.effect = c[0];
 				this.splash.effect = c[1];
-				
 			} else {
-				
 				if ( _DEBUG ) CAAT.log( "[Spell] standard effect" );
 				this.travel.effect = null;
 				this.splash.effect = function ( target ) { 	
@@ -140,7 +123,11 @@
 				setFrameTime( gameScene.time, this.travel.duration+this.splash.duration ).
 				setPositionAnchor( 0.5, 0.5 ).
 				enableEvents( false );
-					
+			
+			if ( !this.travel.rotation ) {
+				this.setRotation( 0 );
+			}
+			
 			var spell = this;
 			var b = new CAAT.Behavior.PathBehavior( ).
 				setAutoRotate( this.travel.rotation || true, CAAT.Behavior.PathBehavior.autorotate.LEFT_TO_RIGHT ).
@@ -171,8 +158,6 @@
 				this.addAnimation( "travel", this.travel.animation.frames, this.travel.animation.duration );
 				this.playAnimation( "travel" );
 			}
-			if ( this.splash.animation )
-				this.addAnimation( "splash", this.splash.animation.frames, this.splash.animation.duration );
 			game.bg.addChild( this );
 		},
 		
@@ -197,33 +182,39 @@
 				this.setBackgroundImage( this.splash.image.sprite ).
 					setPositionAnchor( 0.5, 0.5 ).
 					setPosition( this.dest.x, this.dest.y );
+				
+				if ( !this.splash.rotation ) {
+					this.setRotation( 0 );
+				}
 			} else {
 				if ( _DEBUG ) CAAT.log('[Spell] No splash image found, keeping original');
 			}
+			
 			if ( this.splash.animation ) {
 				this.addAnimation( "splash", this.splash.animation.frames, this.splash.animation.duration, function ( s ){ s.setOffset( -100000, -100000 ); } );
 				this.playAnimation( 'splash' );
 			}
+			
 			var behaviours = this.initBehaviour ? 
 				this.initBehaviour() : [];
 			for ( b in behaviours[1] ) {
 				this.addBehavior( behaviours[1][ b ] );
 			}
 			
-			gameScene.createTimer(
-				gameScene.time,
-				this.splash.duration, 
-				null,
-				this.checkCollisions( ),
-				null
-			);
+			if ( this.splash.effect ) {
+				gameScene.createTimer(
+					gameScene.time,
+					this.splash.duration, 
+					null,
+					this.checkCollisions( ),
+					null
+				);
+			}
 		},
-		
 		
 		checkCollisions: function( ) {
 			
 			if ( _DEBUG ) CAAT.log("[Spell] Check Collisions between "+this.id+" and "+game.enemies.length+" enemies" );
-			// var max = Math.max( director.width, director.height );
 			var entitiesCollision = new CAAT.Module.Collision.QuadTree().create( 
 				0, 0, 
 				director.width  * ( game.options.cell_size || 20 ), 
@@ -233,11 +224,11 @@
 
 			var collide = entitiesCollision.getOverlappingActors( 
 				new CAAT.Rectangle().setBounds( 
-					this.x - ( this.width / 2 ), 
-					this.y - ( this.height / 2 ), 
-					this.width, 
-					this.height )
+					this.x - ( this.width / 2 ), this.y - ( this.height / 2 ), 
+					this.width, this.height 
+				)
 			);
+			
 			if ( collide.length ) {
 				for ( var i = collide.length - 1; i >= 0; i-- ) {
 					if ( this.targets[ collide[i].id ] !== true ) {

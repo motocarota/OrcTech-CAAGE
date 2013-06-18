@@ -1,6 +1,6 @@
 (function() {	
 
-	var _DEBUG = false;
+	var _DEBUG = 1;
 	
 	CAAT.Drop = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );
@@ -10,7 +10,6 @@
 	CAAT.Drop.prototype = {
 
 		id: 			0,
-		level:			1,
 		x: 				0,
 		y: 				0,
 		age: 			0, 
@@ -23,40 +22,54 @@
 		
 		
 		setup : function( type ){
-					
-			this.index = roll( 1, game.dropList.length );
-			this.type = type || game.dropList[ this.index-1 ];
+			
+			if ( !game.dropList ) return -1;
+			this.type = type || game.dropList[ roll( 0, game.dropList.length ) ];
+			this.id = this.type+roll( 1, 999 );
 			
 			var data = game.dropTable[ this.type ];
 			for ( p in data ) {
 				this[ p ] = data[ p ];
 			}
-			
-			this.id = this.type+roll( 1, 999 );
 			if( _DEBUG ) CAAT.log( "[Drop] setup with type: "+type+" -> "+this.type );
 		},
 		
 		
-		add : function( type, x, y, level ) {
+		add : function( type, x, y ) {
 			
 			this.x = x || roll( 1, director.width );
 			this.y = y || roll( 1, director.height );
-			this.level = level || roll( ); 
-			this.setup( type );
+			if ( this.setup( type ) === -1 )
+				return -1;
 			
 			var drop = this;
-			var image = new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'items' ), 2, 3 );
+			var image = new CAAT.Foundation.SpriteImage( ).
+				initialize( director.getImage( 'items' ), 2, 3 );
 
 			this.setLocation( this.x, this.y ).
 				setBackgroundImage( image ).
 				setScale( 0.5, 0.5 ).
 				setPositionAnchor( 0.5, 0.5 ).
-				setSpriteIndex( this.index );
+				setSpriteIndex( this.imageId );
 			
+			var step = roll( 1, 10, 5);
+			var deltaY = roll( 1, step, step/2 );
+			var deltaX = Math.random( ) < 0.5 ? roll( 1, step, step/2 ) : -1*roll( 1, step, step/2 );
+			this.addBehavior( new CAAT.Behavior.PathBehavior().
+					setFrameTime( gameScene.time, 500 ).
+					setInterpolator( new CAAT.Behavior.Interpolator( ).createExponentialOutInterpolator( 5, false ) ).
+					setPath( new CAAT.PathUtil.Path().
+					beginPath( this.x, this.y ).
+					addCubicTo( 
+						this.x-deltaX, this.y-deltaY,
+						this.x-deltaX, this.y-deltaY,
+						this.x-( 2 * deltaX ), this.y+deltaX ).
+					endPath()
+				)
+			);
 			this.addBehavior( 
 				new CAAT.Behavior.AlphaBehavior().
-					setInterpolator( new CAAT.Behavior.Interpolator( ).createLinearInterpolator( 4, true ) ).
-					setFrameTime( gameScene.time + ( game.options.drop.lifespan * game.options.tick_time ), game.options.drop.lifespan*game.options.tick_time ).
+					setFrameTime( gameScene.time + ( game.options.drop.lifespan * game.options.global_cooldown ), game.options.drop.lifespan*30 ).
 					setValues( 1, 0 ).
 					addListener( {
 						behaviorExpired : function( behaviour, time ) {

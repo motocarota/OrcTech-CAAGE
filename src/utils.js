@@ -19,12 +19,12 @@ function roll( num, dice, bonus ){
 
 	// Returns rolls NUM d DICE plus BONUS (ex. roll( 3, 6, 5 ) -> 3d6+5 )
 	// if input arguments are not nice, default values will be used (1d6+0)
-
+	// if num = 0 the number returned will be in the range 0..dice-1 (ex. roll(0, 3) -> 1d4-1 useful for array cycling)
 	// TODO
 	// check args data type to avoid to return NaN values
 	
 	if ( _DEBUG ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... ");
-	if ( num === undefined || num < 1 ) {
+	if ( num === undefined || num < 0 ) {
 		if ( _DEBUG ) console.log("[Roll] warning: invalid number, used default ["+DEFAULT_NUM+"]");
 		num = DEFAULT_NUM;
 	}
@@ -37,10 +37,14 @@ function roll( num, dice, bonus ){
 		bonus = DEFAULT_BONUS;
 	}
 	var total = 0, tmp = 0;
-	for ( i=0; i< num; i++ ) {
-		tmp = Math.floor( Math.random()*dice )+1;
-		total += tmp;
-		if ( _DEBUG ) console.log("[Roll] parial roll "+tmp);
+	if ( num === 0 ) {
+		total = Math.floor( Math.random()*dice );
+	} else {
+		for ( i=0; i< num; i++ ) {
+			tmp = Math.floor( Math.random()*dice )+1;
+			total += tmp;
+			if ( _DEBUG ) console.log("[Roll] parial roll "+tmp);
+		}
 	}
 	total += bonus;
 	if ( _DEBUG ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... "+total);

@@ -21,8 +21,8 @@
 		cooldown: 		6,
 		element: 		"physical",
 		range: 			200,
-		label: 			null,
 		moving: 		false,
+		dropTable: 		null, 
 		
 		
 		setup : function( ){
@@ -36,9 +36,7 @@
 			this.y = (director.height/4)+Math.random()*(director.height*3/4);
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
-			this.speed = Math.floor( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) );
-			this.label = new CAAT.Foundation.UI.TextActor( );
-			
+			this.speed = Math.floor( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) );			
 		},
 		
 		
@@ -79,8 +77,6 @@
 				setPositionAnchor( 0.5, 0.5 );
 			
 			game.bg.addChildAt( this, this.y );
-			game.bg.addChild( this.label );
-			
 			this.index = game.enemies.push( this );
 			this.playAnimation( 'stand' );
 			
@@ -152,24 +148,7 @@
 				
 			if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.hp+' )');
 	        this.hp = this.hp - amount;
-	
-			this.label.
-				setFont("26px "+game.options.font ).
-				setLocation( this.x, this.y ).
-				setText( "-"+amount ).
-				setTextFillStyle( "yellow" );
-			
-			this.label.addBehavior( 
-				new CAAT.Behavior.AlphaBehavior().
-					setFrameTime( gameScene.time, 900 ).
-					setValues( 1, 0 )
-			);
-			
-			this.label.addBehavior( 
-				new CAAT.Behavior.PathBehavior( ).
-					setPath( new CAAT.PathUtil.Path( ).setLinear( this.x, this.y-20, this.x, this.y-40 ) ).
-					setFrameTime( gameScene.time, 900 )
-			);
+			game.player.notifyAt( amount, this );
 	
 			if ( this.hp <= 0 ){ 
 				this.die();
@@ -180,17 +159,27 @@
 		die: function( amount ) {
 			
 			if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+' is now dead!' );
-			this.setDiscardable(true).setExpired(true);
-			this.label.setDiscardable(true).setExpired(true);
+			// this.playAnimation( 'die' );
 			for ( var i = game.enemies.length - 1; i >= 0; i-- ) {
 				if ( game.enemies[i].id === this.id ) {
 					game.enemies.splice( i, 1 );
 					game.killCount++;
+					game.bg.removeChild( this );
+					
+					if ( !this.dropTable ) return;
+					for ( i in this.dropTable ) {
+						var item = this.dropTable[ i ];
+						if ( roll( 1, 100 ) < item.chance ) {
+							var drop, qty;
+							qty = roll( 1, item.qty || 1 );
+							for ( var i=0; i < qty; i++ ) {
+								new CAAT.Drop().add( item.id, this.x, this.y );
+							}
+						}
+					}
 					return true;
 				}
 			}
-			// this.playAnimation( 'die' );
-			return false;
 		},
 		
 		

@@ -9,7 +9,7 @@
  */
 
 (function() {	
-	CAAT.DEBUG = 0;
+	CAAT.DEBUG = 1;
 	var _DEBUG = 0,
 		_FILE_VERSION = 0000,
 		_CELL_SIZE = 5,
@@ -122,7 +122,7 @@
 		gameScene.addChild( game.fg );
 		
 		game.bg.mouseDown = function( ev ) {
-			game.player.castSpell( game.spellIndex, ev.point.x, ev.point.y );
+			game.player.castSpell( game.player.spellIndex, ev.point.x, ev.point.y );
 		};
 	}	
 	
@@ -155,28 +155,33 @@
 	function setupUI () {
 		
 		game.UI = {};
-		
-		game.UI.spellBtns = [];
-		for ( i in game.spellList ) {
-			var img = game.spellBook[ game.spellList[i] ].icon;
-			game.UI.spellBtns[i] = new CAAT.Foundation.Actor( ).
-				setAsButton( 
-					new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'base' ), 2, 10 ),
-					i, 0, 0, 0,
-					function( button ) {
-						game.spellIndex = button.spellId;
-						game.player.notify( game.spellList[button.spellId] );
-					} ).
-				setPositionAnchor( 0, 0 ).
-				setLocation( 100+(100*i), 500 );
-			game.UI.spellBtns[i].spellId = i;
-		};
-		
+
+		game.UI.magicMissileBtn = new CAAT.Foundation.Actor( ).
+			setAsButton( 
+				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'mmissile' ), 1, 4 ),
+				0, 0, 0, 0,
+				function( button ) {
+					game.player.spellIndex = 0;
+					game.player.notify( game.spellList[0] );
+				} ).
+			setPositionAnchor( 0, 0 ).
+			setLocation( 100, 500 );
 			
+		game.UI.fireballBtn = new CAAT.Foundation.Actor( ).
+			setAsButton( 
+				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'fb-travel' ), 2, 2 ),
+				0, 0, 0, 0,
+				function( button ) {
+					game.player.spellIndex = 1;
+					game.player.notify( game.spellList[1] );
+				} ).
+			setPositionAnchor( 0, 0 ).
+			setLocation( 250, 520 );
+				
 		game.UI.pauseBtn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
-				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'base'  ),  2, 10 ),
-				1, 2, 3, 4, 
+				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'base' ),  2, 10 ),
+				0, 0, 0, 0,
 				function( button ){ 
 					CAAT.log('[Main] Game Paused = '+!gameScene.paused )
 					gameScene.setPaused( !gameScene.paused );
@@ -190,9 +195,7 @@
 			setTextFillStyle( "red" ).
 			setTextAlign('center').
 			setLocation( director.width/2, 50 );
-		
-		gameScene.addChild( game.UI.mainString );
-		
+				
 		game.UI.healthBar = new CAAT.Foundation.UI.ShapeActor().
 			setLocation( 50, 10 ).
 			setSize( _MAX_BAR_WIDTH, _MAX_BAR_HEIGHT ).
@@ -218,11 +221,14 @@
 
 			gameScene.addChild( game.UI.debugString );
 		}
-		for( btn in game.UI.spellBtns )
-			gameScene.addChild( game.UI.spellBtns[ btn ] );
+				
+		gameScene.addChild( game.UI.mainString );
 		gameScene.addChild( game.UI.pauseBtn );
 		gameScene.addChild( game.UI.healthBar );
 		gameScene.addChild( game.UI.manaBar );
+			gameScene.addChild( game.UI.magicMissileBtn );
+			gameScene.addChild( game.UI.fireballBtn );
+		
 		game.player.notify( 'Game start!' );
 	}
 	
@@ -256,4 +262,6 @@
 		if ( game.killCount > game.options.enemies.wave )
 			game.player.win();
 	}
+
+	
 } )( );
