@@ -64,12 +64,6 @@
 						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
 					}
 				}
-				// if ( !this.animations[ 'die' ] ) {
-				// 	this.sprite.addAnimation( 'die', 0, 200, function ( s ) {
-				// 		s.setDiscardable(true).setExpired(true);
-				// 		s.label.setDiscardable(true).setExpired(true);
-				// 	} );
-				// }
 			}
 			
 			this.setBackgroundImage( this.sprite, true ).

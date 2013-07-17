@@ -132,3 +132,16 @@ function printEnemies(){
 	for( e in game.enemies )
 		console.log( game.enemies[e].id );
 }
+
+/*
+ * IS function: determine if an Object is of the same type given by argument
+ * ex. 
+ * 		is( "String", 12 ) -> returns false 	
+ * 		is( "Number", 12 ) -> returns true
+ * 		etc. 	
+ */
+
+function is( type, obj ) {
+    var clas = Object.prototype.toString.call(obj).slice(8, -1);
+    return obj !== undefined && obj !== null && clas === type;
+}

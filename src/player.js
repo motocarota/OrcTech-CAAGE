@@ -13,9 +13,7 @@
 			name: 	'player',
 			frameH: 1, 
 			frameW: 1
-		},
-
-		this.label = new CAAT.Foundation.UI.TextActor( );
+		};
 		
 		return this;
 	}
@@ -38,32 +36,16 @@
 				enableEvents( false ).
 				setPositionAnchor( 0.5, 0.5 ).
 				setBackgroundImage( this.sprite );
-			
-			this.label.setFont( "26px "+game.options.font ).
-				setLocation( this.x, this.y );
-				
+							
 			game.bg.addChildAt( this, this.y );
-			game.bg.addChild( this.label );
 		},
 		
 		heal : function ( amount ) {
 			
 			CAAT.log('[Player] heals for '+amount+' points of damage' );
 			this.hp = this.hp+amount > 100 ? 100 : this.hp+amount;
-			this.label.setText( "+"+amount ).
-				setTextFillStyle( "#0f0" );
 			
-			this.label.addBehavior( 
-				new CAAT.Behavior.AlphaBehavior().
-					setFrameTime( gameScene.time, 900 ).
-					setValues( 1, 0 ) 
-			);
-			
-			this.label.addBehavior( 
-				new CAAT.Behavior.PathBehavior( ).
-					setPath( new CAAT.PathUtil.Path( ).setLinear( 50, 220, 50, 200 ) ).
-					setFrameTime( gameScene.time, 900 )
-			);
+			this.notifyAt( "+"+amount, { x: game.player.x, y: game.player.y }, 'green' );
 		},
 		
 		
@@ -71,22 +53,9 @@
 
 			if ( _DEBUG ) CAAT.log('[Player] receive '+amount+' points of '+element+" damage" );
 			this.hp -= amount;
-				
-			this.label.setText( "-"+amount ).
-				setTextFillStyle( "#f00" );
-			
-			this.label.addBehavior( 
-				new CAAT.Behavior.AlphaBehavior().
-					setFrameTime( gameScene.time, 900 ).
-					setValues( 1, 0 ) 
-			);
-			
-			this.label.addBehavior( 
-				new CAAT.Behavior.PathBehavior( ).
-					setPath( new CAAT.PathUtil.Path( ).setLinear( game.player.x, game.player.y, game.player.x, game.player.y-20 ) ).
-					setFrameTime( gameScene.time, 900 )
-			);
-			
+						
+			this.notifyAt( "-"+amount, { x: game.player.x, y: game.player.y }, 'red' );
+						
 			if ( this.hp <= 0 ){
 				this.hp = 0;
 				this.die();
@@ -94,18 +63,22 @@
 		},
 		
 		
-		notify : function ( text ) {
+		notify : function ( text, color ) {
 
 			if( _DEBUG ) CAAT.log('[Player] Notify this: "'+text+'"');
 			
-			if ( !text ) {
-				CAAT.log( '[Player] notify: Nothing to say' );
+			if ( !text ) 
 				return;
-			}
+			
+			if ( !color )
+				color = "yellow";
+			
 			game.UI.mainString.behaviorList = [];
 			game.UI.mainString.
+				setFrameTime( gameScene.time, 900 ).
 				setText( text ).
-				setTextFillStyle( "yellow" ).
+				setTextFillStyle( color ).
+				setFont("26px "+game.options.font ).
 				addBehavior( 
 					new CAAT.Behavior.AlphaBehavior().
 						setFrameTime( gameScene.time, 100 ).
@@ -119,40 +92,48 @@
 		},
 		
 		
-		notifyAt : function ( text, pos ) {
+		notifyAt : function ( text, pos, color ) {
 			
-			if ( !pos )
-				this.notify( text );
+			if ( !text )
+				return;
+						
+			if ( !color )
+				color = "yellow";
+			
+			if ( !pos || !pos.x || !pos.y )
+				pos = { x: this.x ,y: this.y };
+			
 			
 			if( _DEBUG ) CAAT.log('[Player] Notify this: "'+text+'" at '+pos.x+","+pos.y);
 			var x = pos.x - 20 + roll( 1, 40 ); //randomize a little text position
-			var label = new CAAT.Foundation.UI.TextActor( ).
-				setFrameTime( gameScene.time, 900 ).
-				setFont("26px "+game.options.font ).
-				setLocation( x, pos.y ).
-				setText( text ).
-				setTextFillStyle( "yellow" );
-						
-			label.addBehavior( 
-				new CAAT.Behavior.AlphaBehavior().
+
+			game.bg.addChild(
+				new CAAT.Foundation.UI.TextActor( ).
 					setFrameTime( gameScene.time, 900 ).
-					setValues( 1, 0 )
+					setFont("26px "+game.options.font ).
+					setLocation( x, pos.y ).
+					setText( text ).
+					setTextFillStyle( color ).
+					addBehavior( 
+						new CAAT.Behavior.AlphaBehavior().
+							setFrameTime( gameScene.time, 900 ).
+							setValues( 1, 0 )
+					).
+					addBehavior( 
+						new CAAT.Behavior.PathBehavior( ).
+							setPath( new CAAT.PathUtil.Path( ).
+							setLinear( x, pos.y-20, x, pos.y-40 ) ).
+							setFrameTime( gameScene.time, 900 )
+					)
 			);
-			
-			label.addBehavior( 
-				new CAAT.Behavior.PathBehavior( ).
-					setPath( new CAAT.PathUtil.Path( ).
-					setLinear( x, pos.y-20, x, pos.y-40 ) ).
-					setFrameTime( gameScene.time, 900 )
-			);
-			
-			game.bg.addChild( label );
 		},
 		
 		
 		tick : function () {
+			
 			if ( _DEBUG ) CAAT.log( '[Player] Tick' );
-			// Tick is called periodically to manage timed events and effect durations
+			// Tick is called periodically to manage timed events and effect durations; 
+			// Nothing to do right now
 		},
 		
 		
