@@ -17,6 +17,7 @@
 		hitDice:		6,
 		hp: 			10, 
 		type:			'unknown',
+		speed: 			0.5, 
 		attackSpeed: 	6, 
 		cooldown: 		6,
 		element: 		"physical",

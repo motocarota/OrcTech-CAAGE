@@ -22,9 +22,9 @@ function roll( num, dice, bonus, crit_mult ){
 	// if critical_mult arg is set, it will multiply your result if roll(1, 20) === 20
 	// if input arguments are not nice, default values will be used (1d6+0)
 	// if num = 0 the number returned will be in the range 0..dice-1 (ex. roll(0, 3) -> 1d4-1 useful for array cycling)
-	// TODO
-	// check args data type to avoid to return NaN values
-	
+	if ( is( "Array", num ) ) {
+		return Math.floor( Math.random()*num.length );
+	}
 	if ( _DEBUG && _VERBOSE ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... ");
 	if ( num === undefined || num < 0 || !is( 'Number', num ) ) {
 		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid number, used default ["+DEFAULT_NUM+"]");
