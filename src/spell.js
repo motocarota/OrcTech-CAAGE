@@ -124,7 +124,13 @@
 				setPositionAnchor( 0.5, 0.5 ).
 				enableEvents( false );
 			
-			if ( !this.travel.rotation ) {
+			
+			if ( this.travel.rotation ) {
+				if ( is( "Number", this.travel.rotation ) ) {
+					this.setRotation( this.travel.rotation )
+				}
+				// else { automatic rotation, based on missile direction }
+			} else {
 				this.setRotation( 0 );
 			}
 			
@@ -183,15 +189,27 @@
 					setPositionAnchor( 0.5, 0.5 ).
 					setPosition( this.dest.x, this.dest.y );
 				
-				if ( !this.splash.rotation ) {
+				if ( this.splash.rotation ) {
+					if ( is( "Number", this.splash.rotation ) ) {
+						this.setRotation( this.splash.rotation )
+					}
+					// else { automatic rotation, based on missile direction }
+				} else {
 					this.setRotation( 0 );
 				}
+				
 			} else {
 				if ( _DEBUG ) CAAT.log('[Spell] No splash image found, keeping original');
 			}
 			
 			if ( this.splash.animation ) {
-				this.addAnimation( "splash", this.splash.animation.frames, this.splash.animation.duration, function ( s ){ s.setOffset( -100000, -100000 ); } );
+				this.addAnimation( 
+					"splash", 
+					this.splash.animation.frames, 
+					this.splash.animation.duration, 
+					function ( s ){ s.setOffset( -100000, -100000 ); }
+					//horrible hack to ensure that the animation is repeated correctly, gonna find something better someday...
+				);
 				this.playAnimation( 'splash' );
 			}
 			

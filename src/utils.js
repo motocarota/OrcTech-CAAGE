@@ -1,5 +1,6 @@
 
-var _DEBUG = false;
+var _DEBUG = false,
+	_VERBOSE = false;
 var DEFAULT_NUM = 1,
 	DEFAULT_DICE = 6,
 	DEFAULT_BONUS = 0;
@@ -15,25 +16,26 @@ function getDistance ( en0, en1 ) {
 	return Math.floor( Math.sqrt( dx*dx + dy*dy ) );
 }
 
-function roll( num, dice, bonus ){
+function roll( num, dice, bonus, crit_mult ){
 
 	// Returns rolls NUM d DICE plus BONUS (ex. roll( 3, 6, 5 ) -> 3d6+5 )
+	// if critical_mult arg is set, it will multiply your result if roll(1, 20) === 20
 	// if input arguments are not nice, default values will be used (1d6+0)
 	// if num = 0 the number returned will be in the range 0..dice-1 (ex. roll(0, 3) -> 1d4-1 useful for array cycling)
 	// TODO
 	// check args data type to avoid to return NaN values
 	
-	if ( _DEBUG ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... ");
-	if ( num === undefined || num < 0 ) {
-		if ( _DEBUG ) console.log("[Roll] warning: invalid number, used default ["+DEFAULT_NUM+"]");
+	if ( _DEBUG && _VERBOSE ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... ");
+	if ( num === undefined || num < 0 || !is( 'Number', num ) ) {
+		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid number, used default ["+DEFAULT_NUM+"]");
 		num = DEFAULT_NUM;
 	}
-	if ( dice === undefined || dice < 1 ) {
-		if ( _DEBUG ) console.log("[Roll] warning: invalid dice, used default ["+DEFAULT_DICE+"]");
+	if ( dice === undefined || dice < 1 || !is( 'Number', dice ) ) {
+		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid dice, used default ["+DEFAULT_DICE+"]");
 		dice = DEFAULT_DICE;
 	}
-	if ( bonus === undefined ) {
-		if ( _DEBUG ) console.log("[Roll] warning: invalid bonus, used default ["+DEFAULT_BONUS+"]");
+	if ( bonus === undefined || !is( 'Number', bonus ) ) {
+		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid bonus, used default ["+DEFAULT_BONUS+"]");
 		bonus = DEFAULT_BONUS;
 	}
 	var total = 0, tmp = 0;
@@ -43,8 +45,12 @@ function roll( num, dice, bonus ){
 		for ( i=0; i< num; i++ ) {
 			tmp = Math.floor( Math.random()*dice )+1;
 			total += tmp;
-			if ( _DEBUG ) console.log("[Roll] parial roll "+tmp);
+			if ( _DEBUG && _VERBOSE ) console.log("[Roll] parial roll "+tmp);
 		}
+	}
+	if ( crit_mult && is( 'Number', crit_mult ) && roll( 1, 20 ) === 20 ) {
+		if ( _DEBUG ) console.log("[Roll] Critical Hit! "+crit_mult+"x damage!" );
+		total = total * crit_mult;
 	}
 	total += bonus;
 	if ( _DEBUG ) console.log( '[Roll] Rolling '+num+"D"+dice+"+"+bonus+"... "+total);

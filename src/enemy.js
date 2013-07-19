@@ -1,7 +1,7 @@
 (function() {	
 	
-	var _DEBUG = 		false;
-	var _SHOW_PATH = 	false;
+	var _DEBUG = 		false,
+ 		_SHOW_PATH = 	false;
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -137,9 +137,6 @@
 			if ( this.damageFilter ) {
 				amount = Math.round( this.damageFilter( amount, element ) );
 			}
-			if ( roll( 1, 20 ) === 20 )
-				amount *= 2;
-				
 			if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.hp+' )');
 	        this.hp = this.hp - amount;
 			game.player.notifyAt( amount, this );
