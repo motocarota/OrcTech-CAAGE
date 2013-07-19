@@ -247,7 +247,7 @@
 		if ( game.enemies.length < game.options.enemies.maxNumber && Math.random() < (game.options.enemies.spawnRate || 0.2) ) {
 			var enemy = new CAAT.Enemy( );
 			enemy.add( game.enemiesList[ roll( 1, game.enemiesList.length )-1 ] );
-			enemy.move( );
+			enemy.ai( );
 		}
 		
 		//UPDATE UI

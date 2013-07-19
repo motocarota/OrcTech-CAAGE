@@ -174,6 +174,12 @@
 		},
 		
 		
+		ai: function() {
+			
+			this.move();
+		},
+		
+		
 		tick : function() {
 			
 			if ( this.cooldown-- <= 0 ) {
