@@ -3,7 +3,7 @@ function setupOptions( ) {
 	game.options = {
 		max_hp: 			100,
 		volume :			10,
-		font :				"Arial",
+		font :				"26px Arial",
 		cell_size: 			30,
 		global_cooldown :	50,		// determine how often the game calls the tick() method
 		player: {

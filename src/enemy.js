@@ -71,9 +71,14 @@
 				enableEvents( false ).
 				setPositionAnchor( 0.5, 0.5 );
 			
+			// These lines should place a z-order for the actor, but it looks like they don't work at all
 			game.bg.addChildAt( this, this.y );
+			// game.bg.addChild( this );
+			// game.bg.setZOrder( this.y );
+			
 			this.index = game.enemies.push( this );
 			this.playAnimation( 'stand' );
+			
 			
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is added" );
 		},
@@ -90,8 +95,8 @@
 			
 			var dest = {};
 			if ( this.target ) {
-				dest.x = x || this.target.x + this.target.width/2;
-				dest.y = y || this.target.y + roll( 1, this.target.height );
+				dest.x = x || this.target.x + this.target.width/2 + roll( 0, 15 );
+				dest.y = y || this.target.y + this.target.height/4 + roll( 1, this.target.height/2 );
 			}
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is moving to "+dest.x+","+dest.y );
 			

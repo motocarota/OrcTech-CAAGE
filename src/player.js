@@ -53,9 +53,7 @@
 
 			if ( _DEBUG ) CAAT.log('[Player] receive '+amount+' points of '+element+" damage" );
 			this.hp -= amount;
-						
-			this.notifyAt( "-"+amount, { x: game.player.x, y: game.player.y }, 'red' );
-						
+			
 			if ( this.hp <= 0 ){
 				this.hp = 0;
 				this.die();
@@ -78,7 +76,7 @@
 				setFrameTime( gameScene.time, 900 ).
 				setText( text ).
 				setTextFillStyle( color ).
-				setFont("26px "+game.options.font ).
+				setFont( game.options.font ).
 				addBehavior( 
 					new CAAT.Behavior.AlphaBehavior().
 						setFrameTime( gameScene.time, 100 ).
@@ -88,7 +86,7 @@
 					new CAAT.Behavior.AlphaBehavior().
 						setFrameTime( gameScene.time+1000, 500 ).
 						setValues( 1, 0 ) 
-				);			
+				);
 		},
 		
 		
@@ -110,7 +108,7 @@
 			game.bg.addChild(
 				new CAAT.Foundation.UI.TextActor( ).
 					setFrameTime( gameScene.time, 900 ).
-					setFont("26px "+game.options.font ).
+					setFont( game.options.font ).
 					setLocation( x, pos.y ).
 					setText( text ).
 					setTextFillStyle( color ).
