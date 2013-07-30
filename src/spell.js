@@ -248,12 +248,17 @@
 				game.enemies 
 			);
 			var src = travel ? this.travel : this.splash;
+			var aoe = null;
+			if ( src.AOE ) 
+				aoe = src.AOE( this );
+			
 			var rect = { 
-				x: ( src.AOE && src.AOE.x ) || this.x - ( this.width / 2 ),
-				y: ( src.AOE && src.AOE.y ) || this.y - ( this.height / 2 ),
-				w: ( src.AOE && src.AOE.w ) || this.width,
-				h: ( src.AOE && src.AOE.h ) || this.height
+				x: ( aoe && aoe.x ) || this.x - ( this.width / 2 ),
+				y: ( aoe && aoe.y ) || this.y - ( this.height / 2 ),
+				w: ( aoe && aoe.w ) || this.width,
+				h: ( aoe && aoe.h ) || this.height
 			};
+			console.log( "[Spell] Checking collisions on this rect: "+rect.x+", "+rect.y+", "+rect.w+", "+rect.h );
 			var collide = entitiesCollision.getOverlappingActors( 
 				new CAAT.Rectangle().setBounds( rect.x, rect.y, rect.w, rect.h )
 			);
