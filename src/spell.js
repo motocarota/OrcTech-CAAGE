@@ -20,6 +20,7 @@
 		this.travel = {
 			duration: 			500,
 			rotation : 			false,
+			interpolator:		null,
 			image: 	{
 				name: 			'base', 
 				sprite: 		null,
@@ -35,7 +36,6 @@
 			duration:			500,
 			rotation : 			false,
 			path:				null,
-			interpolator:		null,
 			image: {
 				name: 			null,
 				sprite: 		null,
@@ -82,6 +82,10 @@
 						game.player.x, game.player.y,
 						this.dest.x, this.dest.y 
 					);
+			}
+			
+			if ( this.travel.anchor && this.travel.anchor.x && this.travel.anchor.y ) {
+				this.setPositionAnchor( this.travel.anchor.x, this.travel.anchor.y );
 			}
 			
 			if ( _DEBUG && _SHOW_PATH ) {
@@ -189,6 +193,10 @@
 					setPositionAnchor( 0.5, 0.5 ).
 					setPosition( this.dest.x, this.dest.y );
 				
+				if ( this.splash.anchor && this.splash.anchor.x && this.splash.anchor.y ) {
+					this.setPositionAnchor( this.splash.anchor.x, this.splash.anchor.y );
+				}
+
 				if ( this.splash.rotation ) {
 					if ( is( "Number", this.splash.rotation ) ) {
 						this.setRotation( this.splash.rotation )
@@ -207,8 +215,7 @@
 					"splash", 
 					this.splash.animation.frames, 
 					this.splash.animation.duration, 
-					function ( s ){ s.setOffset( -100000, -100000 ); }
-					//horrible hack to ensure that the animation is repeated correctly, gonna find something better someday...
+					null
 				);
 				this.playAnimation( 'splash' );
 			}
@@ -219,19 +226,20 @@
 				this.addBehavior( behaviours[1][ b ] );
 			}
 			
+			var that = this;
 			if ( this.splash.effect ) {
 				gameScene.createTimer(
 					gameScene.time,
 					this.splash.duration, 
-					null,
-					this.checkCollisions( ),
-					null
+					function(){ if ( _DEBUG ) CAAT.log("[Spell] No collision found for "+this.id ); },
+					function( t, tt ){ that.checkCollisions( false ) },
+					function(){ if ( _DEBUG ) CAAT.log("[Spell] Timer cancelled" ); }
 				);
 			}
 		},
 		
-		checkCollisions: function( ) {
-			
+		checkCollisions: function( travel ) {
+
 			if ( _DEBUG ) CAAT.log("[Spell] Check Collisions between "+this.id+" and "+game.enemies.length+" enemies" );
 			var entitiesCollision = new CAAT.Module.Collision.QuadTree().create( 
 				0, 0, 
@@ -239,25 +247,27 @@
 				director.height * ( game.options.cell_size || 20 ), 
 				game.enemies 
 			);
-
+			var src = travel ? this.travel : this.splash;
+			var rect = { 
+				x: ( src.AOE && src.AOE.x ) || this.x - ( this.width / 2 ),
+				y: ( src.AOE && src.AOE.y ) || this.y - ( this.height / 2 ),
+				w: ( src.AOE && src.AOE.w ) || this.width,
+				h: ( src.AOE && src.AOE.h ) || this.height
+			};
 			var collide = entitiesCollision.getOverlappingActors( 
-				new CAAT.Rectangle().setBounds( 
-					this.x - ( this.width / 2 ), this.y - ( this.height / 2 ), 
-					this.width, this.height 
-				)
+				new CAAT.Rectangle().setBounds( rect.x, rect.y, rect.w, rect.h )
 			);
 			
 			if ( collide.length ) {
 				for ( var i = collide.length - 1; i >= 0; i-- ) {
 					if ( this.targets[ collide[i].id ] !== true ) {
 						this.targets[ collide[i].id ] = true;
-						this.splash.effect( collide[i] );
-						if ( _DEBUG ) CAAT.log("[Spell] Collision Found: "+this.id+" hits "+collide[i].id );
+						src.effect( collide[i] );
+						if ( _DEBUG ) CAAT.log("[Spell] Collision found: "+this.id+" hits "+collide[i].id );
 					}
 				};
-			} else {
-				if ( _DEBUG ) CAAT.log("[Spell] No collision Found for "+this.id );
 			}
+			return false;
 		}
 	};
 	
