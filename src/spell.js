@@ -201,7 +201,6 @@
 					if ( is( "Number", this.splash.rotation ) ) {
 						this.setRotation( this.splash.rotation )
 					}
-					// else { automatic rotation, based on missile direction }
 				} else {
 					this.setRotation( 0 );
 				}
@@ -258,7 +257,6 @@
 				w: ( aoe && aoe.w ) || this.width,
 				h: ( aoe && aoe.h ) || this.height
 			};
-			console.log( "[Spell] Checking collisions on this rect: "+rect.x+", "+rect.y+", "+rect.w+", "+rect.h );
 			var collide = entitiesCollision.getOverlappingActors( 
 				new CAAT.Rectangle().setBounds( rect.x, rect.y, rect.w, rect.h )
 			);
@@ -268,7 +266,7 @@
 					if ( this.targets[ collide[i].id ] !== true ) {
 						this.targets[ collide[i].id ] = true;
 						src.effect( collide[i] );
-						if ( _DEBUG ) CAAT.log("[Spell] Collision found: "+this.id+" hits "+collide[i].id );
+						// if ( _DEBUG ) CAAT.log("[Spell] Collision found: "+this.id+" hits "+collide[i].id );
 					}
 				};
 			}
