@@ -46,6 +46,19 @@ CAAT.Mage.prototype = {
 		return spell;
 	},
 	
+	damage : function ( amount, element ) {
+
+		if ( _DEBUG ) CAAT.log('[Mage] receive '+amount+' points of '+element+" damage" );
+		this.hp -= amount;
+		
+		if ( this.hp <= 0 ){
+			this.hp = 0;
+			this.die();
+		}
+		
+		game.player.notifyAt( amount, this );
+	},
+	
 	tick: function() {
 		for ( c in this.cooldowns ){
 			this.cooldowns[ c ]--;

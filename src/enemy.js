@@ -1,7 +1,8 @@
 (function() {	
 	
-	var _DEBUG = 		false,
+	var _DEBUG = 		true,
  		_SHOW_PATH = 	false;
+window.bff = [];
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -23,7 +24,7 @@
 		element: 		"physical",
 		range: 			200,
 		moving: 		false,
-		dropTable: 		null, 
+		dropTable: 		null,
 		
 		
 		setup : function( ){
@@ -32,19 +33,28 @@
 			for ( p in data ) {
 				this[ p ] = data[ p ];
 			}
-			
-			this.x = director.width + this.width;
-			this.y = (director.height/4)+Math.random()*(director.height*3/4);
+			this.buffs = [];
+			this.modifiers = { hp: 0, speed: 0 }; 
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
 			this.speed = Math.floor( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) );			
 		},
 		
+		getHp: function(){
+			return this.hp + this.modifiers.hp;
+		},
+		
+		getSpeed: function(){
+			return this.speed + this.modifiers.speed;
+		},
 		
 		add : function( type ) {
 			
 			this.type = type;
 			this.setup( );
+			
+			this.x = director.width + this.width;
+			this.y = (director.height/4)+Math.random()*(director.height*3/4);
 			
 			this.sprite = new CAAT.Foundation.SpriteImage().initialize( 
 				director.getImage( this.type ), 
@@ -105,7 +115,7 @@
 				dest.x, dest.y
 			);
 			
-			var t = getDistance( this, dest )*this.speed;
+			var t = getDistance( this, dest )*this.getSpeed();
 			var e = this;
 			this.pathBehavior = new CAAT.Behavior.PathBehavior().
 				setFrameTime( gameScene.time, t ).
@@ -143,11 +153,10 @@
 			if ( this.damageFilter ) {
 				amount = Math.round( this.damageFilter( amount, element ) );
 			}
-			if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.hp+' )');
-	        this.hp = this.hp - amount;
+			if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.getHp()+' )');
+			this.hp = this.getHp() - amount;
 			game.player.notifyAt( amount, this );
-	
-			if ( this.hp <= 0 ){ 
+			if ( this.getHp() <= 0 ){ 
 				this.die();
 			}
 	    },
@@ -185,11 +194,28 @@
 			this.move();
 		},
 		
+		addBuff: function( b ) {
+			//if( b.isHarmful() ) try to resist to it
+			if( _DEBUG ) CAAT.log( "[Enemy] added a buff: ", b );
+			b.setTarget( this );
+			this.buffs.push( b );
+		},
 		
 		tick : function() {
 			
 			if ( this.cooldown-- <= 0 ) {
 				this.attack( );
+			}
+			
+			for ( var i=0; i < this.buffs.length; i++ ) {
+				
+				if ( this.buffs[i].isActive() ) {
+					this.buffs[i].tick();
+					if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+"'s buff "+i+" ticks..." );
+				} else {
+					this.buffs.splice( i, 1 );
+					if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+"'s buff "+i+" ends" );
+				}
 			}
 			
 			if ( _DEBUG && _SHOW_PATH ) {

@@ -17,7 +17,7 @@
 		_MAX_BAR_WIDTH = 360;
 
 	window.addEventListener( 'load', load, false );
-		
+	window.testLoad = load;
     function load( ) {
 
 		new CAAT.Module.Preloader.Preloader( ).

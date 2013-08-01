@@ -1,6 +1,6 @@
 (function() {
 	
-	var _DEBUG = false;
+	var _DEBUG = 1;
 	
 	CAAT.Player = function( ) {
 		
@@ -9,6 +9,7 @@
 		this.hp = 100;
 		this.x = 0;
 		this.y = 0;
+		this.buffs = [];
 		this.image = {
 			name: 	'player',
 			frameH: 1, 
@@ -53,11 +54,6 @@
 
 			if ( _DEBUG ) CAAT.log('[Player] receive '+amount+' points of '+element+" damage" );
 			this.hp -= amount;
-			
-			if ( this.hp <= 0 ){
-				this.hp = 0;
-				this.die();
-			}
 		},
 		
 		
@@ -127,6 +123,14 @@
 		},
 		
 		
+		addBuff: function( b ) {
+			//if( b.isHarmful() ) try to resist to it
+			if( _DEBUG ) CAAT.log( "[Player] added a buff: ", b );
+			b.setTarget( this );
+			this.buffs.push( b );
+		},
+		
+		
 		tick : function () {
 			
 			if ( _DEBUG ) CAAT.log( '[Player] Tick' );
@@ -137,7 +141,10 @@
 		
 		die : function () {
 			
-			if ( _DEBUG ) CAAT.log( '[Player] Dies!' );
+			if ( _DEBUG ) {
+				CAAT.log( '[Player] Dies!' );
+				return;
+			}
 			game.UI.mainString.setText( 'Game Over' );
 			CAAT.endLoop();
 		},
@@ -145,7 +152,10 @@
 		
 		win : function () {
 			
-			if ( _DEBUG ) CAAT.log( '[Player] Wins!' );
+			if ( _DEBUG ) {
+				CAAT.log( '[Player] Wins!' );
+				return;
+			}
 			game.UI.mainString.setText( 'You Won!' );
 			CAAT.endLoop();
 		}

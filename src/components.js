@@ -1,10 +1,5 @@
 (function() {
-// TODO capire come mai non riesco a far avere i metodi agli oggetti
-// es. un nemico con la componente moveable non riceveva il metodo move
-
-	game.component.entity = {
-
-	}
+	game.component.entity = { };
 
 	game.component.moveable = {
 		x: 0,
@@ -21,6 +16,7 @@
 	game.component.damageable = {
 
 		hp: 100,
+		resistance: { fire: 0, frost:0, arcane:0, shadow:0 },
 		damage: function( amount, element ){
 			amount = this.damageFilter( amount, element );
 			this.hp -= amount;

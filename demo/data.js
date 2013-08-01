@@ -29,9 +29,9 @@ game.spellBook = {
 			}
 		},
 		splash: {
-			duration: 		500,
+			duration: 		450,
 			animation: {
-				frames: [1,2,3], duration: 120
+				frames: [1,2,3], duration: 150
 			}
 		},
 		
@@ -70,7 +70,7 @@ game.spellBook = {
 		school: 		"invocation", 
 		
 		travel: {
-			duration: 	2000,
+			duration: 	1200,
 			image: 	{
 				name: 	'fb-travel',
 				frame: { w: 2, h: 2 }
@@ -81,9 +81,8 @@ game.spellBook = {
 		},
 		
 		splash : {
-			duration: 		1000,
+			duration: 		600,
 			rotation: 		false,
-			// rotation: 		45,
 			image : {
 				name : "fb-splash",
 				frame: { w: 3, h: 2 }
@@ -97,7 +96,12 @@ game.spellBook = {
 			return [ 
 				null,
 				function( target ){
-					target && target.damage( roll( 5, 6 ), 'nature' );
+					target && target.damage( roll( 2, 6 ), 'nature' );
+					var c = new game.Buff();
+					c.init( 5, function( t ){
+						t && t.damage( roll( 1, 6 ), 'nature' );
+					} );
+					target.addBuff( c )
 					return true;
 				}
 			];
