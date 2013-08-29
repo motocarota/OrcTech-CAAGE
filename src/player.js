@@ -1,6 +1,6 @@
 (function() {
 	
-	var _DEBUG = 1;
+	var _DEBUG = false;
 	
 	CAAT.Player = function( ) {
 		

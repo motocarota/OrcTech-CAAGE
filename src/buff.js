@@ -7,8 +7,6 @@
 		this.effect = effect || function(){ CAAT.log("[Buff] No effect defined") };
 		this.harmful = harmful || false;
 		
-		//nota: pare non riesca ad assegnarmi la durata
-		// provare con un metodo tipo init
 		return {
 			
 			duration : 1,
@@ -59,6 +57,10 @@
 			
 			lastTick: function() {
 				return ( this.getDurationLeft() === 0 );
+			},
+			
+			allowResist: function() {
+			    return false;
 			}
 		}
 	};

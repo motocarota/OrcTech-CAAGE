@@ -239,15 +239,16 @@
 		game.player.tick();
 		
 		//UPDATE ENEMIES
-		for ( e in game.enemies ) {
-			game.enemies[ e ].tick();
-		}
-				
+		game.enemies = _.sortBy( game.enemies, 'y' );
+		for (var i=0; i < game.enemies.length; i++) {
+            game.enemies[i].tick();
+            game.bg.setZOrder( game.enemies[i], i );
+		};
 		// Enemies generation
 		if ( game.enemies.length < game.options.enemies.maxNumber && Math.random() < (game.options.enemies.spawnRate || 0.2) ) {
 			var enemy = new CAAT.Enemy( );
 			enemy.add( game.enemiesList[ roll( 1, game.enemiesList.length )-1 ] );
-			enemy.ai( );
+            enemy.ai( );
 		}
 		
 		//UPDATE UI

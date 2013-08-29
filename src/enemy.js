@@ -1,8 +1,7 @@
 (function() {	
 	
-	var _DEBUG = 		true,
+	var _DEBUG = 		false,
  		_SHOW_PATH = 	false;
-window.bff = [];
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -22,7 +21,7 @@ window.bff = [];
 		attackSpeed: 	6, 
 		cooldown: 		6,
 		element: 		"physical",
-		range: 			200,
+		range: 			250,
 		moving: 		false,
 		dropTable: 		null,
 		
@@ -37,16 +36,47 @@ window.bff = [];
 			this.modifiers = { hp: 0, speed: 0 }; 
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
-			this.speed = Math.floor( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) );			
+            this.speed = ( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) ).toFixed(2);
 		},
+		
 		
 		getHp: function(){
-			return this.hp + this.modifiers.hp;
+		    
+		    var mods = [0];
+			for ( b in this.buffs ) {
+                 if ( this.buffs[b].modSpeed ) {
+                     mods.push( this.buffs[b].modHp );
+                 }
+            }
+            return this.hp + _.max( mods );
 		},
 		
+		/*
+		    getSpeed()
+		    returns the current speed of the entity
+		    
+    		to calculate the speed multiplier:
+            1. only the most strong buff counts, ex:
+                speedBuffs= [ 1.1, 1.1, 1.2, 1.5 ] my resulting speed will be 1.5x
+                speedBuffs= [ 0.2, 0.9, 0.3 ] my resulting speed will be 0.2x
+                
+            2. with Buffs with opposite sign, you subtract the resulting multipliers in both signs
+                speedBuffs= [ 0.3, 1.5 ] my resulting speed will be +1.5 -( 1 -0.3 ) = 1,5 - 0.7 = 0.8x
+                speedBuffs= [ 0.9, 1.2, 1.9 ] my resulting speed will be +1.9 -( 1 -0.9 ) = 1,9 - 0.1 = 1.8x
+        */
 		getSpeed: function(){
-			return this.speed + this.modifiers.speed;
+		    
+            var mods = [1]; //full speed
+            for ( b in this.buffs ) {
+                 if ( this.buffs[b].modSpeed ) {
+                     mods.push( this.buffs[b].modSpeed );
+                 }
+            }            
+            var speed_mult = _.max( mods ) - ( 1 - _.min( mods ) ); 
+            // console.log( "[Enemy] id:"+this.id+" min-speed:"+_.min( mods )+" max-speed:"+_.max( mods )+" --> mod("+mod+") * speed("+this.speed+") = "+this.speed * mod )
+            return ( this.speed * speed_mult ).toFixed( 2 );
 		},
+		
 		
 		add : function( type ) {
 			
@@ -65,7 +95,6 @@ window.bff = [];
 			if ( this.animations && this.animations !== {} ){
 				
 				var a = null;
-				
 				for ( id in this.animations ) {
 					a = this.animations[ id ];
 					if ( a ) {
@@ -81,10 +110,7 @@ window.bff = [];
 				enableEvents( false ).
 				setPositionAnchor( 0.5, 0.5 );
 			
-			// These lines should place a z-order for the actor, but it looks like they don't work at all
-			game.bg.addChildAt( this, this.y );
-			// game.bg.addChild( this );
-			// game.bg.setZOrder( this.y );
+            game.bg.addChild( this );
 			
 			this.index = game.enemies.push( this );
 			this.playAnimation( 'stand' );
@@ -93,58 +119,59 @@ window.bff = [];
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is added" );
 		},
 		
+		
 		halt: function () {
 			
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" halts at "+this.x+","+this.y );
 			this.emptyBehaviorList( );
-			moving = false;
+			this.moving = false;
 			this.playAnimation( 'stand' );
 		},
+		
 		
 		move: function ( x, y ) {
 			
 			var dest = {};
 			if ( this.target ) {
-				dest.x = x || this.target.x + this.target.width/2 + roll( 0, 15 );
+				dest.x = x || this.target.x + this.target.width/2;
 				dest.y = y || this.target.y + this.target.height/4 + roll( 1, this.target.height/2 );
 			}
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is moving to "+dest.x+","+dest.y );
 			
 			this.path = new CAAT.PathUtil.Path().setLinear( 
-				this.x, this.y, 
-				dest.x, dest.y
+				this.x, this.y, dest.x, dest.y
 			);
 			
-			var t = getDistance( this, dest )*this.getSpeed();
+			var t = ( this.getDistance( dest ) * this.getSpeed() ).toFixed(2);
+			// console.log(t)
 			var e = this;
 			this.pathBehavior = new CAAT.Behavior.PathBehavior().
 				setFrameTime( gameScene.time, t ).
-				setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
-				setPath( this.path ).
-				addListener( {
-					behaviorExpired : function( behaviour, time ) {
-						e.attack( );
-					}
-				} 
-				);
+                setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
+                setPath( this.path ).
+                addListener( {
+                    behaviorExpired : function( behaviour, time ) {
+                         // e.attack( );
+                         // e.ai();
+                         e.halt();
+                        }
+                } 
+			);
 			
 			this.addBehavior( this.pathBehavior );
-			moving = true;
+			this.moving = true;
 			this.playAnimation( 'walk' );
 		},
 		
 		
 		attack: function( ) { 
 			
-			if ( this.range > getDistance( this, this.target ) ) {
-				
-				this.halt( );
-				this.target.damage( roll( this.level ), this.element );
-				this.cooldown = this.attackSpeed;
-				this.playAnimation( 'attack' );
-			
-				if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking!" );
-			}
+			this.halt( );
+			this.target.damage( roll( this.level ), this.element );
+			this.cooldown = this.attackSpeed;
+			this.playAnimation( 'attack' );
+		
+			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking!" );
 		},
 		
 		
@@ -172,14 +199,15 @@ window.bff = [];
 					game.killCount++;
 					game.bg.removeChild( this );
 					
-					if ( !this.dropTable ) return;
+					if ( !this.dropTable ) 
+					    return false;
 					for ( i in this.dropTable ) {
 						var item = this.dropTable[ i ];
 						if ( roll( 1, 100 ) < item.chance ) {
 							var drop, qty;
 							qty = roll( 1, item.qty || 1 );
 							for ( var i=0; i < qty; i++ ) {
-								new CAAT.Drop().add( item.id, this.x, this.y );
+								new CAAT.Drop().add( item.id, this.x + this.width, this.y );
 							}
 						}
 					}
@@ -188,31 +216,53 @@ window.bff = [];
 			}
 		},
 		
+		getDistance: function( entity ){
+		    if ( !entity ) {
+		        entity = this.target;
+		    }
+	        return getDistance( this, entity );
+		},
 		
 		ai: function() {
-			
-			this.move();
+		    
+            if ( this.range < this.getDistance( ) ) {
+                if ( !this.moving ) {
+                    this.move( );
+                }
+            } else {
+                this.halt( );
+                if ( this.cooldown-- <= 0 ) {
+    				this.attack( );
+				}
+            }
+
 		},
 		
 		addBuff: function( b ) {
-			//if( b.isHarmful() ) try to resist to it
+		    
 			if( _DEBUG ) CAAT.log( "[Enemy] added a buff: ", b );
 			b.setTarget( this );
+            // if( b.isHarmful() && b.allowResist() && roll( 20 ) > 15 ) { return; } //you resist the effect
 			this.buffs.push( b );
 		},
 		
 		tick : function() {
 			
-			if ( this.cooldown-- <= 0 ) {
-				this.attack( );
-			}
+            this.ai();
 			
 			for ( var i=0; i < this.buffs.length; i++ ) {
-				
+                // if ( this.moving && this.buffs[i].modSpeed !== this.getSpeed() ) {
+                //                     console.log(" ---------- *** UPDATING speed *** ------------")
+                //     this.move(); //update speed
+                // }
 				if ( this.buffs[i].isActive() ) {
+				    //aggiornare la velocita'
+				    //applicare la modifica
 					this.buffs[i].tick();
 					if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+"'s buff "+i+" ticks..." );
 				} else {
+				    //risistemare la velocita'
+				    //applicare la modifica
 					this.buffs.splice( i, 1 );
 					if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+"'s buff "+i+" ends" );
 				}
@@ -231,3 +281,12 @@ window.bff = [];
 	
 	extend( CAAT.Enemy, CAAT.Actor );
 })();
+
+//NOTE
+/*
+    speed piu' e' bassa piu' veloce viaggia l'entita'
+    va rivisto il controllo su tick
+        adesso se ho un debuff al movimento, mi fa fare move ad ogni tick
+        dovrei: applicare la differenza e segnare il buff come 'applicato'
+    va anche fatto in modo di togliere l'effetto dall'entita'
+*/

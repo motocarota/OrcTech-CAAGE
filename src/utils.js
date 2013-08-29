@@ -1,6 +1,7 @@
 
 var _DEBUG = false,
 	_VERBOSE = false;
+	
 var DEFAULT_NUM = 1,
 	DEFAULT_DICE = 6,
 	DEFAULT_BONUS = 0;
@@ -20,8 +21,9 @@ function roll( num, dice, bonus, crit_mult ){
 
 	// Returns rolls NUM d DICE plus BONUS (ex. roll( 3, 6, 5 ) -> 3d6+5 )
 	// if critical_mult arg is set, it will multiply your result if roll(1, 20) === 20
-	// if input arguments are not nice, default values will be used (1d6+0)
-	// if num = 0 the number returned will be in the range 0..dice-1 (ex. roll(0, 3) -> 1d4-1 useful for array cycling)
+	// if input arguments aren't valid, default values will be used (1d6+0)
+	// if num = 0 the returned value will be in the range 0..dice-1 (ex. roll(0, 3) -> 1d4-1 useful for array's indexes)
+	
 	if ( is( "Array", num ) ) {
 		return Math.floor( Math.random()*num.length );
 	}
