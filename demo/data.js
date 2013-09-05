@@ -39,8 +39,12 @@ game.spellBook = {
 			return [
 				null,
 				function( target ){
-					target && target.damage( roll( 1, 6, 1 ), 'force' );
-					return true;
+                    target && target.damage( roll( ), 'force' );
+                    var slow = new game.Buff();
+                    slow.init( 3, function(t){ } );
+                    slow.modSpeed = 3.9;
+                    target.addBuff( slow );
+                    // target.refreshSpeed();
 				}
 			];
 		},
@@ -96,12 +100,12 @@ game.spellBook = {
 			return [ 
 				null,
 				function( target ){
-					target && target.damage( roll( 2, 6 ), 'nature' );
+                    target && target.damage( roll( 2, 6 ), 'nature' );
 					var c = new game.Buff();
 					c.init( 5, function( t ){
 						t && t.damage( roll( 1, 6 ), 'nature' );
 					} );
-					target.addBuff( c )
+					target.addBuff( c );
 					return true;
 				}
 			];
@@ -118,7 +122,6 @@ game.enemiesBook = {
 	
 	zombie: {
 		level: 4,
-		speed: 0.5,
 		frameW: 4, 
 		frameH: 2,
 		animations: {
@@ -160,7 +163,26 @@ game.enemiesBook = {
 	
 	wraith: {
 		level: 6,
-		speed: 0.25
+		speed: 0.25,
+		
+		ai: function() {
+		    
+            if ( this.cooldown-- > 0 && roll() > 3 ) {
+                if ( !this.moving ) {
+                    this.move( roll( 1, 100, 400 ) , roll( 1, 500, 100 )  );
+                }
+            } else {
+                
+                if ( this.moving ) {
+                    this.halt( );
+                }
+                if ( this.cooldown <= 0 ) {
+                    game.player.notifyAt( "shoot", this );
+    				this.attack( );
+				}
+            }
+            
+		},
 	}
 	
 };
