@@ -18,6 +18,7 @@
 		this.icon = 			null;
 		this.targets =			{};
 		this.travel = {
+			speed: 				1,
 			duration: 			500,
 			rotation : 			false,
 			interpolator:		null,
@@ -117,7 +118,9 @@
 		add : function( ) {
 			
 			if ( _DEBUG ) CAAT.log("[Spell] Add "+this.id+" at ["+this.dest.x+","+this.dest.y+"]")
-		
+			
+			this.travel.duration = this.travel.path.getLength() * this.travel.speed;
+			
 			this.travel.image.sprite = new CAAT.Foundation.SpriteImage( ).initialize( 
 				director.getImage( this.travel.image.name ), 
 				this.travel.image.frame.h, 
@@ -127,7 +130,6 @@
 				setFrameTime( gameScene.time, this.travel.duration+this.splash.duration ).
 				setPositionAnchor( 0.5, 0.5 ).
 				enableEvents( false );
-			
 			
 			if ( this.travel.rotation ) {
 				if ( is( "Number", this.travel.rotation ) ) {

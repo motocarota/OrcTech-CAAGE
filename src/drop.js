@@ -52,7 +52,7 @@
 				setPositionAnchor( 0.5, 0.5 ).
 				setSpriteIndex( this.imageId );
 			
-			var step = roll( 1, 10, 5 );
+			var step = roll( 1, 20 );
 			var deltaY = roll( 1, step, step/2 );
 			var deltaX = Math.random( ) < 0.5 ? roll( 1, step, step/2 ) : -1*roll( 1, step, step/2 );
 			this.addBehavior( new CAAT.Behavior.PathBehavior().

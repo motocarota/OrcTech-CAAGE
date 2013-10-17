@@ -29,10 +29,14 @@
 			addElement( "mmissile",	"img/missile.png" ).
 			addElement( "fb-travel","img/fb-travel.png" ).
 			addElement( "fb-splash","img/fb-splash.png" ).
+			addElement( "shield",	"img/shield.png" ).
 			//monsters
 			addElement( "zombie",	"img/zombie.png" ).
 			addElement( "skeleton",	"img/skeleton.png" ).
 			addElement( "wraith",	"img/wraith.png" ).
+			//projectiles
+			addElement( "arrow",	"img/rock.png" ).
+			addElement( "rock",		"img/arrow.png" ).
 			//other
 			addElement( "bg",		"img/gy-back.png" ).
 			addElement( "fg",		"img/gy-fore.png" ).
@@ -177,6 +181,17 @@
 				} ).
 			setPositionAnchor( 0, 0 ).
 			setLocation( 250, 520 );
+		
+		game.UI.shieldBtn = new CAAT.Foundation.Actor( ).
+			setAsButton( 
+				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'shield' ), 1, 1 ),
+				0, 0, 0, 0,
+				function( button ) {
+					game.player.shieldActivated();
+				} ).
+			setScale( 0.5, 0.5 ).
+			setPositionAnchor( 0, 0.5 ).
+			setLocation( 380, 535 );
 				
 		game.UI.pauseBtn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
@@ -226,8 +241,9 @@
 		gameScene.addChild( game.UI.pauseBtn );
 		gameScene.addChild( game.UI.healthBar );
 		gameScene.addChild( game.UI.manaBar );
-			gameScene.addChild( game.UI.magicMissileBtn );
-			gameScene.addChild( game.UI.fireballBtn );
+		gameScene.addChild( game.UI.magicMissileBtn );
+		gameScene.addChild( game.UI.fireballBtn );
+		gameScene.addChild( game.UI.shieldBtn );
 		
 		game.player.notify( 'Game start!' );
 	}

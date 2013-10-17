@@ -39,12 +39,12 @@ game.spellBook = {
 			return [
 				null,
 				function( target ){
-                    target && target.damage( roll( ), 'force' );
-                    var slow = new game.Buff();
-                    slow.init( 3, function(t){ } );
-                    slow.modSpeed = 3.9;
-                    target.addBuff( slow );
-                    // target.refreshSpeed();
+					target && target.damage( roll( ), 'force' );
+					// var slow = new game.Buff();
+					// slow.init( 3, function(t){ } );
+					// slow.modSpeed = 3.9;
+					// target.addBuff( slow );
+					// target.refreshSpeed();
 				}
 			];
 		},
@@ -74,7 +74,7 @@ game.spellBook = {
 		school: 		"invocation", 
 		
 		travel: {
-			duration: 	1200,
+			speed: 	2,
 			image: 	{
 				name: 	'fb-travel',
 				frame: { w: 2, h: 2 }
@@ -100,7 +100,7 @@ game.spellBook = {
 			return [ 
 				null,
 				function( target ){
-                    target && target.damage( roll( 2, 6 ), 'nature' );
+					target && target.damage( roll( 2, 6 ), 'nature' );
 					var c = new game.Buff();
 					c.init( 5, function( t ){
 						t && t.damage( roll( 1, 6 ), 'nature' );
@@ -112,6 +112,27 @@ game.spellBook = {
 		}
 	}
 };
+
+// ========================================================
+// Projectiles
+// ========================================================
+
+game.projBook = {
+	'rock': {
+		speed: 			1,
+		damage: 		3
+	},
+	'arrow': {
+		speed: 			5,
+		damage: 		2
+	},
+	'mmissile':{
+		speed: 			2,
+		damage: 		3,
+		frameW: 		4
+	}
+};
+game.projList = [ 'arrow', 'rock', 'mmissile' ];
 
 // ========================================================
 // Enemies
@@ -163,25 +184,26 @@ game.enemiesBook = {
 	
 	wraith: {
 		level: 6,
+		ranged: true,
+		role: 'ranged',
+		projectile: 2,
 		speed: 0.25,
 		
 		ai: function() {
-		    
-            if ( this.cooldown-- > 0 && roll() > 3 ) {
-                if ( !this.moving ) {
-                    this.move( roll( 1, 100, 400 ) , roll( 1, 500, 100 )  );
-                }
-            } else {
-                
-                if ( this.moving ) {
-                    this.halt( );
-                }
-                if ( this.cooldown <= 0 ) {
-                    game.player.notifyAt( "shoot", this );
-    				this.attack( );
+			//TODO integrare questa AI direttamente in enemy
+			// role: melee, ranged, summoner, healer
+			if ( this.cooldown-- > 0 && roll() > 3 ) {
+				if ( !this.moving ) {
+					this.move( roll( 1, 100, 400 ) , roll( 1, 500, 100 )  );
 				}
-            }
-            
+			} else {
+				if ( this.moving ) {
+					this.halt( );
+				}
+				if ( this.cooldown <= 0 ) {
+					this.attack( );
+				}
+			}
 		},
 	}
 	

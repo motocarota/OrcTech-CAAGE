@@ -11,21 +11,23 @@
 	
 	CAAT.Enemy.prototype = {
 
-		id: 			0,
-		index: 		   -1,
+		id:				0,
+		index:			-1,
 		level:			1,
 		hitDice:		6,
-		hp: 			10, 
+		hp:				10, 
 		type:			'unknown',
-		speed: 			0.5, 
-		attackSpeed: 	6, 
-		cooldown: 		6,
-		element: 		"physical",
-		range: 			150,
-		moving: 		false,
-		dropTable: 		null,
-		tick_done: 		0,
-		summoned: 		false,
+		role: 			"unknown", 
+		speed:			0.5, 
+		attackSpeed:	6, 
+		cooldown:		6,
+		element:		"physical",
+		range:			150,
+		moving:			false,
+		dropTable:		null,
+		tick_done:		0,
+		ranged:			false, 
+		summoned:		false,
 		_dest:			{ x:0, y:0 },
 		_t:				0,
 		
@@ -40,6 +42,47 @@
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
 			this.speed = ( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) ).toFixed(2);
+		},
+		
+		
+		add : function( type, summoned ) {
+			
+			this.type = type;
+			this.summoned = summoned;
+			this.setup( );
+			
+			this.x = director.width + this.width;
+			this.y = (director.height/4)+Math.random()*(director.height*3/4);
+			
+			this.sprite = new CAAT.Foundation.SpriteImage().initialize( 
+				director.getImage( this.type ), 
+				this.frameH || 1, 
+				this.frameW || 1 
+			);
+			
+			if ( this.animations && this.animations !== {} ){
+				
+				var a = null;
+				for ( id in this.animations ) {
+					a = this.animations[ id ];
+					if ( a ) {
+						if ( id === 'attack' && !a.reset ) {
+							a.reset = function ( s ) { s.playAnimation( 'stand' ) };
+						}
+						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
+					}
+				}
+			}
+			
+			this.setBackgroundImage( this.sprite, true ).
+				enableEvents( false ).
+				setPositionAnchor( 0.5, 0.5 );
+			
+			game.bg.addChild( this );
+			this.index = game.enemies.push( this );
+			this.playAnimation( 'stand' );
+			
+			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is added" );
 		},
 		
 		
@@ -82,47 +125,8 @@
 		
 		refreshSpeed: function() {
 			
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' refresh his speed' );
 			this.move( this._dest.x, this._dest.y );
-		},
-		
-		add : function( type, summoned ) {
-			
-			this.type = type;
-			this.summoned = summoned;
-			this.setup( );
-			
-			this.x = director.width + this.width;
-			this.y = (director.height/4)+Math.random()*(director.height*3/4);
-			
-			this.sprite = new CAAT.Foundation.SpriteImage().initialize( 
-				director.getImage( this.type ), 
-				this.frameH || 1, 
-				this.frameW || 1 
-			);
-			
-			if ( this.animations && this.animations !== {} ){
-				
-				var a = null;
-				for ( id in this.animations ) {
-					a = this.animations[ id ];
-					if ( a ) {
-						if ( id === 'attack' && !a.reset ) {
-							a.reset = function ( s ) { s.playAnimation( 'stand' ) };
-						}
-						this.sprite.addAnimation( id, a.frames, a.duration, a.reset );
-					}
-				}
-			}
-			
-			this.setBackgroundImage( this.sprite, true ).
-				enableEvents( false ).
-				setPositionAnchor( 0.5, 0.5 );
-			
-			game.bg.addChild( this );
-			this.index = game.enemies.push( this );
-			this.playAnimation( 'stand' );
-			
-			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is added" );
 		},
 		
 		
@@ -166,29 +170,62 @@
 		},
 		
 		
+		getRole: function () {
+			return this.role;
+		},
+		
+		
 		attack: function( ) { 
 			
+			var amount = roll( 1, 6, this.level );
 			this.halt( );
-			this.target.damage( roll( this.level ), this.element );
+			if ( this.getRole() ===  'ranged' ) {
+				if ( _DEBUG ) CAAT.log( '[Enemy] I\'m ranged so I shoot' );
+				this.shoot( );
+			} else {
+				if ( _DEBUG ) CAAT.log( '[Enemy] I\'m melee so I attack' );
+				this.target.damage( amount, this.element );
+			}
 			this.cooldown = this.attackSpeed;
 			this.playAnimation( 'attack' );
 		
-			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking!" );
+			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking "+this.target+" for "+amount+" damage!" );
+		},
+		
+		
+		say: function( text ) {
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' says: "'+text+'"' );
+			game.player.notifyAt( text, this );
+		},
+		
+		
+		shoot: function() {
+			
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' shoots' );
+			var p = new CAAT.Projectile( this.projectile );
+			p.setup( this );
+			p.add( );
 		},
 		
 		
 		damage: function( amount, element ) {
 			
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.getHp()+' )' );
 			if ( this.damageFilter ) {
 				amount = Math.round( this.damageFilter( amount, element ) );
 			}
-			if ( _DEBUG ) CAAT.log('[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.getHp()+' )');
 			this.hp = this.getHp() - amount;
-			game.player.notifyAt( amount, this );
-			if ( this.getHp() <= 0 ){ 
+			this.say( amount );
+			if ( this.getHp() <= 0 ) { 
 				this.die();
 			}
 		},
+		
+		
+		heal: function( amount ) {
+			
+		},
+		
 		
 		die: function( opts ) {
 			
@@ -210,7 +247,7 @@
 							var drop, qty;
 							qty = roll( 1, item.qty || 1 );
 							for ( var i=0; i < qty; i++ ) {
-								new CAAT.Drop().add( item.id, this.x + this.width, this.y );
+								new CAAT.Drop().add( item.id, this.x, this.y );
 							}
 						}
 					}
@@ -219,12 +256,14 @@
 			}
 		},
 		
+		
 		getDistance: function( entity ){
 			if ( !entity ) {
 				entity = this.target;
 			}
 			return getDistance( this, entity );
 		},
+		
 		
 		ai: function() {
 		
@@ -241,6 +280,7 @@
 			
 		},
 		
+		
 		addBuff: function( buff ) {
 			
 			if( _DEBUG ) CAAT.log( "[Enemy] added a buff: ", buff );
@@ -249,6 +289,7 @@
 			// if( buff.isHarmful() && buff.allowResist() && roll( 1, 100 ) > this.resistances[ buff.element ] ) { return; }
 			this.buffs.push( buff );
 		},
+		
 		
 		tick : function() {
 			

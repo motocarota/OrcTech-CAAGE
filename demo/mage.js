@@ -1,6 +1,7 @@
 // ========================================================
 // Mage
 // ========================================================
+var _MAX_SHIELD = 10;
 
 CAAT.Mage = function( ) {
 	
@@ -8,6 +9,7 @@ CAAT.Mage = function( ) {
 	this.mana = 100;
 	this.cooldowns = {};
 	this.spellIndex = 0;
+	this.shield = 0;
 	this.image = {
 		name: 	'player',
 		frameH: 1,
@@ -26,6 +28,7 @@ CAAT.Mage.prototype = {
 	castSpell : function ( id, x, y ) {
 		
 		if ( _DEBUG ) CAAT.log('[Player] casts a spell id:'+id+' at( '+x+','+y+' )');
+		this.shieldRemoved();
 		var spell = null;
 		
 		if ( !this.cooldowns[ id ] || this.cooldowns[ id ] < 0 ) {
@@ -46,9 +49,47 @@ CAAT.Mage.prototype = {
 		return spell;
 	},
 	
+	shieldActivated : function () {
+		
+		if ( _DEBUG ) CAAT.log( '[Mage] Shield up' );
+		this.shield = _MAX_SHIELD;
+		//add shield sprite
+		if ( game.player.shieldSprite ) {
+			game.player.shieldSprite.setVisible( true );
+		} else {
+			game.player.shieldSprite = new CAAT.Foundation.Actor( ).
+				setPositionAnchor( 0.1, 0 ).
+				setBounds( 10, 100, 180, 180 ).
+				setBackgroundImage( new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'shield' ), 1, 1 ) ).
+				enableEvents( false );
+			game.bg.addActor( game.player.shieldSprite );
+		}
+		//trigger some sort of cooldown or it might be too easy to avoid damage 
+	},
+	
+	shieldRemoved : function () {
+		
+		if ( _DEBUG ) CAAT.log( '[Mage] Shield destroyed' );
+		this.shield = 0;
+		//remove shield sprite
+		if ( game.player.shieldSprite ) {
+			game.player.shieldSprite.setVisible( false );
+		}
+	},
+	
 	damage : function ( amount, element ) {
 
 		if ( _DEBUG ) CAAT.log('[Mage] receive '+amount+' points of '+element+" damage" );
+		if ( this.shield > 0 ) {
+			var delta = amount - this.shield;
+			this.shield -= amount;
+			amount = ( delta < 0 ) ? 0 : delta;
+			if ( this.shield <= 0 ) {
+				this.shieldRemoved();
+			} else {
+				game.player.notifyAt( 'absorb', this, 'white' );
+			}
+		}
 		this.hp -= amount;
 		
 		if ( this.hp <= 0 ){
@@ -60,6 +101,7 @@ CAAT.Mage.prototype = {
 	},
 	
 	tick: function() {
+		
 		for ( c in this.cooldowns ){
 			this.cooldowns[ c ]--;
 		}
