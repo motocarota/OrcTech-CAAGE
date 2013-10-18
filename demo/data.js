@@ -142,7 +142,8 @@ game.enemiesList = [ 'zombie', 'skeleton', 'wraith' ];
 game.enemiesBook = {
 	
 	zombie: {
-		level: 4,
+		level: 3,
+		speed: 0.75,
 		frameW: 4, 
 		frameH: 2,
 		animations: {
@@ -162,8 +163,7 @@ game.enemiesBook = {
 	},
 	
 	skeleton: {
-		level: 1,
-		speed: 0.75,
+		level: 2,
 		frameW: 4, 
 		frameH: 2,
 		animations: {
@@ -183,28 +183,32 @@ game.enemiesBook = {
 	},
 	
 	wraith: {
-		level: 6,
-		ranged: true,
+		level: 5,
 		role: 'ranged',
-		projectile: 2,
-		speed: 0.25,
-		
-		ai: function() {
-			//TODO integrare questa AI direttamente in enemy
-			// role: melee, ranged, summoner, healer
-			if ( this.cooldown-- > 0 && roll() > 3 ) {
-				if ( !this.moving ) {
-					this.move( roll( 1, 100, 400 ) , roll( 1, 500, 100 )  );
-				}
-			} else {
-				if ( this.moving ) {
-					this.halt( );
-				}
-				if ( this.cooldown <= 0 ) {
-					this.attack( );
-				}
-			}
-		},
+		projectile: 1,
+		speed: 5,
+		ai: rangedAI
 	}
 	
 };
+
+
+function rangedAI( ) {
+	
+	if ( this.cooldown-- > 0 && roll() > 3 ) {
+		if ( !this.moving ) {
+			this.move( roll( 1, 100, 400 ) , roll( 1, 500, 100 )  );
+		}
+	} else {
+		if ( this.moving ) {
+			this.halt( );
+		}
+		if ( this.cooldown <= 0 ) {
+			this.cooldown = this.attackspeed;
+			var p = new CAAT.Projectile( this.projectile );
+			p.setup( this );
+			p.add( );
+			this.playAnimation( 'attack' );
+		}
+	}
+}

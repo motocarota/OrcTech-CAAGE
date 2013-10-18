@@ -169,7 +169,7 @@
 					game.player.notify( game.spellList[0] );
 				} ).
 			setPositionAnchor( 0, 0 ).
-			setLocation( 100, 500 );
+			setLocation( 250, 500 );
 			
 		game.UI.fireballBtn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
@@ -180,7 +180,7 @@
 					game.player.notify( game.spellList[1] );
 				} ).
 			setPositionAnchor( 0, 0 ).
-			setLocation( 250, 520 );
+			setLocation( 380, 520 );
 		
 		game.UI.shieldBtn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
@@ -191,7 +191,7 @@
 				} ).
 			setScale( 0.5, 0.5 ).
 			setPositionAnchor( 0, 0.5 ).
-			setLocation( 380, 535 );
+			setLocation( 70, 535 );
 				
 		game.UI.pauseBtn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
@@ -262,8 +262,8 @@
 		};
 		// Enemies generation
 		if ( game.enemies.length < game.options.enemies.maxNumber && Math.random() < (game.options.enemies.spawnRate || 0.2) ) {
-			var enemy = new CAAT.Enemy( );
-			enemy.add( game.enemiesList[ roll( 1, game.enemiesList.length )-1 ] );
+			enemy = new CAAT.Enemy( );
+			enemy.add( game.enemiesList[ roll( game.enemiesList ) ] );
             enemy.ai( );
 		}
 		

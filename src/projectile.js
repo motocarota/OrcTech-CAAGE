@@ -1,6 +1,6 @@
 (function() {	
 	
-	var _DEBUG = true;
+	var _DEBUG = false;
 	var _SHOW_PATH = false;
 	
 	CAAT.Projectile = function( id ) {

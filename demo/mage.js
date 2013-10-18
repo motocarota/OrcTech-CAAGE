@@ -28,10 +28,10 @@ CAAT.Mage.prototype = {
 	castSpell : function ( id, x, y ) {
 		
 		if ( _DEBUG ) CAAT.log('[Player] casts a spell id:'+id+' at( '+x+','+y+' )');
-		this.shieldRemoved();
 		var spell = null;
 		
 		if ( !this.cooldowns[ id ] || this.cooldowns[ id ] < 0 ) {
+			this.shieldRemoved();
 			this.playAnimation("cast");
 			spell = new CAAT.Spell( id, x, y );	
 			if ( this.mana > spell.cost ) {

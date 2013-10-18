@@ -16,7 +16,7 @@ function setupOptions( ) {
 			spawnRate: 		0.5,
 			maxNumber: 		10,
 			wave: 			60, 	// How many enemies spawn until the game is over
-			baseSpeed : 	100 	// base enemy speed
+			baseSpeed : 	50 		// base enemy speed
 		}
 	};
 };

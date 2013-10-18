@@ -1,6 +1,6 @@
 (function() {	
-	
-	var _DEBUG = 		false,
+
+	var _DEBUG = 		true,
  		_SHOW_PATH = 	false;
 	
 	CAAT.Enemy = function( ){
@@ -15,10 +15,11 @@
 		index:			-1,
 		level:			1,
 		hitDice:		6,
-		hp:				10, 
+		hp:				10,
+		wounds: 		0,
 		type:			'unknown',
-		role: 			"unknown", 
-		speed:			0.5, 
+		role: 			"melee", 
+		speed:			1, 
 		attackSpeed:	6, 
 		cooldown:		6,
 		element:		"physical",
@@ -26,12 +27,12 @@
 		moving:			false,
 		dropTable:		null,
 		tick_done:		0,
-		ranged:			false, 
 		summoned:		false,
 		_dest:			{ x:0, y:0 },
 		_t:				0,
 		
-		setup : function( ){
+		
+		setup : function( ) {
 			
 			var data = game.enemiesBook[ this.type ];
 			for ( p in data ) {
@@ -41,7 +42,6 @@
 			this.modifiers = { hp: 0, speed: 0 }; 
 			this.hp = roll( this.level, this.hitDice, this.level );
 			this.id = this.type+roll( 1, 999 );
-			this.speed = ( game.options.enemies.baseSpeed * ( 1 - ( data.speed ? data.speed : 0.5 ) ) ).toFixed(2);
 		},
 		
 		
@@ -86,6 +86,11 @@
 		},
 		
 		
+		getDamage: function( ) { 
+			return roll(); 
+		},
+		
+		
 		getHp: function(){
 			
 			var mods = [0];
@@ -94,7 +99,7 @@
 					 mods.push( this.buffs[b].modHp );
 				 }
 			}
-			return this.hp + _.max( mods );
+			return this.hp - this.wounds + _.max( mods );
 		},
 		
 		/*
@@ -110,6 +115,7 @@
 				speedBuffs= [ 0.3, 1.5 ] my resulting speed will be +1.5 -( 1 -0.3 ) = 1,5 - 0.7 = 0.8x
 				speedBuffs= [ 0.9, 1.2, 1.9 ] my resulting speed will be +1.9 -( 1 -0.9 ) = 1,9 - 0.1 = 1.8x
 		*/
+		
 		getSpeed: function(){
 			
 			var mods = [ this.speed ];
@@ -150,46 +156,16 @@
 			this.path = new CAAT.PathUtil.Path().setLinear( 
 				this.x, this.y, this._dest.x, this._dest.y
 			);
-			
-			this._t = 1000 * this.getDistance( this._dest ) / this.getSpeed();
+			this._t = ( game.options.enemies.baseSpeed * this.path.getLength() / this.getSpeed() );
 			var e = this;
 			this.pathBehavior = new CAAT.Behavior.PathBehavior().
 				setFrameTime( gameScene.time, this._t ).
 				setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
-				setPath( this.path ).
-				addListener( {
-					behaviorExpired : function( behaviour, time ) {
-						e.halt();
-					}
-				} 
-			);
+				setPath( this.path );
 			
 			this.addBehavior( this.pathBehavior );
 			this.moving = true;
 			this.playAnimation( 'walk' );
-		},
-		
-		
-		getRole: function () {
-			return this.role;
-		},
-		
-		
-		attack: function( ) { 
-			
-			var amount = roll( 1, 6, this.level );
-			this.halt( );
-			if ( this.getRole() ===  'ranged' ) {
-				if ( _DEBUG ) CAAT.log( '[Enemy] I\'m ranged so I shoot' );
-				this.shoot( );
-			} else {
-				if ( _DEBUG ) CAAT.log( '[Enemy] I\'m melee so I attack' );
-				this.target.damage( amount, this.element );
-			}
-			this.cooldown = this.attackSpeed;
-			this.playAnimation( 'attack' );
-		
-			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking "+this.target+" for "+amount+" damage!" );
 		},
 		
 		
@@ -199,31 +175,44 @@
 		},
 		
 		
-		shoot: function() {
+		attack: function( amount ) { 
 			
-			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' shoots' );
-			var p = new CAAT.Projectile( this.projectile );
-			p.setup( this );
-			p.add( );
+			if ( this.cooldown-- > 0 ) {
+				return;
+			} else {
+				this.cooldown = this.attackSpeed;
+			}
+			
+			if ( !amount ) {
+				amount = this.getDamage();
+			}
+			this.target.damage( this.getDamage(), this.element );
+			this.playAnimation( 'attack' );
+			if ( _DEBUG ) CAAT.log( "[Enemy] "+this.id+" is attacking "+this.target+" for "+amount+" damage!" );
 		},
 		
 		
 		damage: function( amount, element ) {
 			
-			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' points of '+element+' damage ( hp: '+this.getHp()+' )' );
 			if ( this.damageFilter ) {
 				amount = Math.round( this.damageFilter( amount, element ) );
 			}
-			this.hp = this.getHp() - amount;
+			this.wounds += amount;
 			this.say( amount );
-			if ( this.getHp() <= 0 ) { 
+			if ( this.getHp() < this.wounds ) {
 				this.die();
 			}
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' hp of '+element+' damage ( status: '+this.wounds+'/'+this.hp+' )' );
 		},
 		
 		
 		heal: function( amount ) {
 			
+			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' heals '+amount+' hp' );
+			this.wounds -= amount;
+			if ( this.wounds < 0 ){
+				this.wounds = 0;
+			}
 		},
 		
 		
@@ -233,7 +222,7 @@
 			// this.playAnimation( 'die' );
 			for ( var i = game.enemies.length - 1; i >= 0; i-- ) {
 				if ( game.enemies[i].id === this.id ) {
-					if ( !this.summoned ) { //only genuine enemies count toward limits, summoned ones don't
+					if ( !this.summoned ) { //only genuine enemies do count, summoned ones don't
 						game.killCount++;
 					}
 					game.enemies.splice( i, 1 );
@@ -258,6 +247,7 @@
 		
 		
 		getDistance: function( entity ){
+			
 			if ( !entity ) {
 				entity = this.target;
 			}
@@ -267,15 +257,12 @@
 		
 		ai: function() {
 		
-			if ( this.range < this.getDistance( ) ) {
+			if ( this.range < this.getDistance( ) || this.cooldown > 0 ) {
 				if ( !this.moving ) {
 					this.move( );
 				}
 			} else {
-				this.halt( );
-				if ( this.cooldown <= 0 ) {
-					this.attack( );
-				}
+				this.attack( this.getDamage() );
 			}
 			
 		},
@@ -324,6 +311,13 @@
 			}
 		}
 	};
-	
 	extend( CAAT.Enemy, CAAT.Actor );
+	
+	CAAT.RangedEnemy = function( ){
+		CAAT.RangedEnemy.superclass.constructor.call( this );
+		return this;
+	};
+	
+	CAAT.RangedEnemy.prototype = {};
+	extend( CAAT.RangedEnemy, CAAT.Enemy );
 })();
