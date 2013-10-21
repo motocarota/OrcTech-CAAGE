@@ -1,6 +1,6 @@
 (function() {	
 
-	var _DEBUG = 		true,
+	var _DEBUG = 		false,
  		_SHOW_PATH = 	false;
 	
 	CAAT.Enemy = function( ){

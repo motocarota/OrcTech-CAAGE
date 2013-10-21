@@ -184,9 +184,9 @@ game.enemiesBook = {
 	
 	wraith: {
 		level: 5,
+		speed: 5,
 		role: 'ranged',
 		projectile: 1,
-		speed: 5,
 		ai: rangedAI
 	}
 	
@@ -204,7 +204,7 @@ function rangedAI( ) {
 			this.halt( );
 		}
 		if ( this.cooldown <= 0 ) {
-			this.cooldown = this.attackspeed;
+			this.cooldown = this.attackSpeed;
 			var p = new CAAT.Projectile( this.projectile );
 			p.setup( this );
 			p.add( );
