@@ -140,8 +140,8 @@
 			
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" halts at "+this.x+","+this.y );
 			this.moving = false;
-			this.emptyBehaviorList();
 			this.playAnimation( 'stand' );
+			this.emptyBehaviorList();
 		},
 		
 		
@@ -161,7 +161,13 @@
 			this.pathBehavior = new CAAT.Behavior.PathBehavior().
 				setFrameTime( gameScene.time, this._t ).
 				setInterpolator( new CAAT.Behavior.Interpolator().createLinearInterpolator(false) ).
-				setPath( this.path );
+				setPath( this.path ).
+				addListener( {
+					behaviorExpired : function( behaviour, time ) {
+						e.moving = false;
+						e.playAnimation( 'stand' );
+					}
+				} );
 			
 			this.addBehavior( this.pathBehavior );
 			this.moving = true;
