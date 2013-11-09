@@ -16,14 +16,15 @@
 		type:			'unknown',
 		
 		effect : function(){ 
-			
-			game.player.notify( 'Base drop effect' ); 
+			if ( _DEBUG ) game.player.notify( 'Base drop effect' ); 
 		},
 		
 		
 		setup : function( type ){
 			
-			if ( !game.dropList ) return -1;
+			if ( !type || !game.dropList ) {
+				return -1;
+			}
 			this.type = type || game.dropList[ roll( 0, game.dropList.length ) ];
 			this.id = this.type+roll( 1, 999 );
 			
@@ -39,9 +40,9 @@
 			
 			this.x = x || roll( 1, director.width );
 			this.y = y || roll( 1, director.height );
-			if ( this.setup( type ) === -1 )
+			if ( this.setup( type ) === -1 ) {
 				return -1;
-			
+			}
 			var drop = this;
 			var image = new CAAT.Foundation.SpriteImage( ).
 				initialize( director.getImage( 'items' ), 2, 3 );
@@ -77,7 +78,6 @@
 						}
 					} )
 			);
-			
 			gameScene.addChild( this );
 			if( _DEBUG ) CAAT.log( "[Drop] "+this.id+" is added" );
 		},

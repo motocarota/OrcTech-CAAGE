@@ -44,8 +44,7 @@
 		heal : function ( amount ) {
 			
 			CAAT.log('[Player] heals for '+amount+' points of damage' );
-			this.hp = this.hp+amount > 100 ? 100 : this.hp+amount;
-			
+			this.hp = _.min( [ this.hp + amount, game.options.player.max_hp ] );
 			this.notifyAt( "+"+amount, { x: game.player.x, y: game.player.y }, 'green' );
 		},
 		

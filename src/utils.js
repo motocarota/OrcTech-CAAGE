@@ -31,14 +31,20 @@ function roll( num, dice, bonus, crit_mult ){
 	if ( num === undefined || num < 0 || !is( 'Number', num ) ) {
 		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid number, used default ["+DEFAULT_NUM+"]");
 		num = DEFAULT_NUM;
+	} else {
+		num = Math.floor( num );
 	}
 	if ( dice === undefined || dice < 1 || !is( 'Number', dice ) ) {
 		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid dice, used default ["+DEFAULT_DICE+"]");
 		dice = DEFAULT_DICE;
+	} else {
+		dice = Math.floor( dice );
 	}
 	if ( bonus === undefined || !is( 'Number', bonus ) ) {
 		if ( _DEBUG && _VERBOSE ) console.log("[Roll] warning: invalid bonus, used default ["+DEFAULT_BONUS+"]");
 		bonus = DEFAULT_BONUS;
+	} else {
+		bonus = Math.floor( bonus );
 	}
 	var total = 0, tmp = 0;
 	if ( num === 0 ) {

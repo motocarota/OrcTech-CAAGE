@@ -94,11 +94,6 @@
 		getHp: function(){
 			
 			var mods = [0];
-			for ( b in this.buffs ) {
-				 if ( this.buffs[b].modSpeed ) {
-					 mods.push( this.buffs[b].modHp );
-				 }
-			}
 			return this.hp - this.wounds + _.max( mods );
 		},
 		
@@ -205,7 +200,7 @@
 			}
 			this.wounds += amount;
 			this.say( amount );
-			if ( this.getHp() < this.wounds ) {
+			if ( this.wounds > this.hp ) {
 				this.die();
 			}
 			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' hp of '+element+' damage ( status: '+this.wounds+'/'+this.hp+' )' );
@@ -234,19 +229,21 @@
 					game.enemies.splice( i, 1 );
 					game.bg.removeChild( this );
 					
-					if ( !this.dropTable ) 
-						return false;
-					for ( i in this.dropTable ) {
-						var item = this.dropTable[ i ];
-						if ( roll( 1, 100 ) < item.chance ) {
-							var drop, qty;
-							qty = roll( 1, item.qty || 1 );
-							for ( var i=0; i < qty; i++ ) {
-								new CAAT.Drop().add( item.id, this.x, this.y );
+					if ( _.has( this, 'dropTable' ) ) {
+						for ( i in this.dropTable ) {
+							var item = this.dropTable[ i ];
+							if ( roll( 1, 100 ) < item.chance ) {
+								var drop, qty;
+								qty = roll( 1, item.qty || 1 );
+								for ( var i=0; i < qty; i++ ) {
+									new CAAT.Drop().add( item.id, this.x, this.y );
+								}
 							}
 						}
+						return true;
+					} else {
+						return false;
 					}
-					return true;
 				}
 			}
 		},
@@ -270,7 +267,6 @@
 			} else {
 				this.attack( this.getDamage() );
 			}
-			
 		},
 		
 		

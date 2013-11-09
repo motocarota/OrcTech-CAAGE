@@ -19,7 +19,7 @@
 		this.targets =			{};
 		this.travel = {
 			speed: 				1,
-			duration: 			500,
+			duration: 			null,
 			rotation : 			false,
 			interpolator:		null,
 			image: 	{
@@ -119,7 +119,9 @@
 			
 			if ( _DEBUG ) CAAT.log("[Spell] Add "+this.id+" at ["+this.dest.x+","+this.dest.y+"]")
 			
-			this.travel.duration = this.travel.path.getLength() * this.travel.speed;
+			if ( !this.travel.duration ) {
+				this.travel.duration = this.travel.path.getLength() * this.travel.speed;
+			}
 			
 			this.travel.image.sprite = new CAAT.Foundation.SpriteImage( ).initialize( 
 				director.getImage( this.travel.image.name ), 
