@@ -170,9 +170,9 @@
 		},
 		
 		
-		say: function( text ) {
+		say: function( text, color ) {
 			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' says: "'+text+'"' );
-			game.player.notifyAt( text, this );
+			game.player.notifyAt( text, this, color );
 		},
 		
 		
@@ -201,7 +201,7 @@
 			this.wounds += amount;
 			this.say( amount );
 			if ( this.wounds > this.hp ) {
-				this.die();
+				this.die( true );
 			}
 			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' hp of '+element+' damage ( status: '+this.wounds+'/'+this.hp+' )' );
 		},
@@ -214,10 +214,11 @@
 			if ( this.wounds < 0 ){
 				this.wounds = 0;
 			}
+			this.say( '+'+amount, '#9f0' );
 		},
 		
 		
-		die: function( opts ) {
+		die: function( drop ) {
 			
 			if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+' is now dead!' );
 			// this.playAnimation( 'die' );
@@ -229,7 +230,7 @@
 					game.enemies.splice( i, 1 );
 					game.bg.removeChild( this );
 					
-					if ( _.has( this, 'dropTable' ) ) {
+					if ( drop && _.has( this, 'dropTable' ) ) {
 						for ( i in this.dropTable ) {
 							var item = this.dropTable[ i ];
 							if ( roll( 1, 100 ) < item.chance ) {
