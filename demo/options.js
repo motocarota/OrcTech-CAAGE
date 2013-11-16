@@ -13,6 +13,9 @@ function setupOptions( ) {
 			tick_mana: 		5 
 		},
 		enemies : {
+			bar_width: 		50,
+			bar_height: 	5, 
+			bar_color: 		"#f00",
 			spawnRate:		0.5,
 			basicDrop:		null, 
 			maxNumber:		10,

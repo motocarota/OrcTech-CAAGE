@@ -113,6 +113,11 @@
 					}
 				} );
 			this.addBehavior( b );
+			if ( this.animation ) {
+				this.addAnimation( "travel", this.animation.frames, this.animation.duration );
+				this.playAnimation( "travel" );
+				CAAT.log( "Animation: added -> travel" )
+			}
 			game.bg.addChild( this );
 		},
 		

@@ -20,6 +20,12 @@
 				this.harmful = harmful || false;
 			},
 			
+			initWithName : function( name ){
+				var data = game.buffBook[ name ];
+				this.init( data.duration, data.effect, data.harmful );
+				return this;
+			},
+			
 			setTarget: function( target ) {
 				this.target = target;
 			},
@@ -56,7 +62,7 @@
 			},
 			
 			lastTick: function() {
-				return ( this.getDurationLeft() === 0 );
+				return ( this.getDurationLeft() <= 1 );
 			},
 			
 			allowResist: function() {

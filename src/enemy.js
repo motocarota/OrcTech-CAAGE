@@ -1,7 +1,7 @@
 (function() {	
 
-	var _DEBUG = 		false,
- 		_SHOW_PATH = 	false;
+	var _DEBUG = 		1,//false,
+ 		_SHOW_PATH = 	1//false;
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -20,14 +20,16 @@
 		type:			'unknown',
 		role: 			"melee", 
 		speed:			1, 
-		attackSpeed:	6, 
+		attackSpeed:	6,
 		cooldown:		6,
 		element:		"physical",
 		range:			150,
 		moving:			false,
 		dropTable:		null,
 		tick_done:		0,
+		regeneration: 	0,
 		summoned:		false,
+		_bonus_damage: 	0,
 		_dest:			{ x:0, y:0 },
 		_t:				0,
 		
@@ -78,6 +80,13 @@
 				enableEvents( false ).
 				setPositionAnchor( 0.5, 0.5 );
 			
+			this.hpBar = new CAAT.Foundation.Actor( ).
+				setFillStyle( '#F00' ).
+				setSize( game.options.enemies.bar_width, game.options.enemies.bar_height ).
+				setPositionAnchor( 0.5, 0 ).
+				setLocation( this.width/2, 0 );
+			this.addChild( this.hpBar );
+			
 			game.bg.addChild( this );
 			this.index = game.enemies.push( this );
 			this.playAnimation( 'stand' );
@@ -87,7 +96,9 @@
 		
 		
 		getDamage: function( ) { 
-			return roll(); 
+			
+			var bonus = this.level + this._bonus_damage;
+			return roll( 2, this.level, bonus ); 
 		},
 		
 		
@@ -142,9 +153,11 @@
 		
 		move: function ( x, y ) {
 			
-			if ( this.target ) {
-				this._dest.x = x || this.target.x + this.target.width/2;
-				this._dest.y = y || this.target.y + this.target.height/4 + roll( 1, this.target.height/2 );
+			this.emptyBehaviorList();
+			
+			if ( x && y ){
+				this._dest.x = x;
+				this._dest.y = y;
 			}
 			if( _DEBUG ) CAAT.log("[Enemy] "+this.id+" is moving to "+this._dest.x+","+this._dest.y );
 			
@@ -203,6 +216,8 @@
 			if ( this.wounds > this.hp ) {
 				this.die( true );
 			}
+			var percentage = game.options.enemies.bar_width * this.getHp() / this.hp;
+			this.hpBar.setSize( percentage, game.options.enemies.bar_height );
 			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' receives '+amount+' hp of '+element+' damage ( status: '+this.wounds+'/'+this.hp+' )' );
 		},
 		
@@ -214,6 +229,8 @@
 			if ( this.wounds < 0 ){
 				this.wounds = 0;
 			}
+			var percentage = game.options.enemies.bar_width * this.getHp() / this.hp;
+			this.hpBar.setSize( percentage, game.options.enemies.bar_height );
 			this.say( '+'+amount, '#9f0' );
 		},
 		
@@ -263,7 +280,7 @@
 		
 			if ( this.range < this.getDistance( ) || this.cooldown > 0 ) {
 				if ( !this.moving ) {
-					this.move( );
+					this.move( this.target.x + this.target.width/2, this.target.y + this.target.height/4 + roll( 1, this.target.height/2 ) );
 				}
 			} else {
 				this.attack( this.getDamage() );
@@ -286,8 +303,13 @@
 			this.tick_done++;
 			this.ai();
 			
-			if ( this.cooldown > 0 )
+			if ( this.cooldown > 0 ) {
 				this.cooldown--;
+			}
+			
+			if ( this.tick_done % this.attackSpeed === 0 ) {
+				this.regeneration > 0 && this.heal( this.regeneration );
+			}
 			
 			for ( var i=0; i < this.buffs.length; i++ ) {
 				if ( this.moving && this.buffs[i].modSpeed ) {
@@ -314,7 +336,7 @@
 			}
 		}
 	};
-	extend( CAAT.Enemy, CAAT.Actor );
+	extend( CAAT.Enemy, CAAT.ActorContainer );
 	
 	CAAT.RangedEnemy = function( ){
 		CAAT.RangedEnemy.superclass.constructor.call( this );

@@ -32,7 +32,7 @@
 			for ( p in data ) {
 				this[ p ] = data[ p ];
 			}
-			if( _DEBUG ) CAAT.log( "[Drop] setup with type: "+type+" -> "+this.type );
+			if( _DEBUG ) CAAT.log( "[Drop] setup with type: "+type+" -> "+this.type, this );
 		},
 		
 		
