@@ -65,6 +65,20 @@ module( "Base", {
 		}
 	} );
 	
+	test( "Roll method - array arg", 100, function(){
+		var res, i=0;
+		var array = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i' ];
+		while ( i++ < 50 ){
+			res = roll( 0, array );
+			ok( res <= array.length, "roll( 0, array["+array.length+"] ): "+res );
+		}
+		i=0;
+		while ( i++ < 50 ){
+			res = randomFrom( array );
+			ok( is( "String", res ) , "randomFrom( array ): "+res );
+		}
+	} );
+		
 	test( "Roll method - bad args", 1, function(){
 		ok(1, "TODO");
 	} );

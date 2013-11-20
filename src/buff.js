@@ -13,16 +13,23 @@
 			effect : function(){ CAAT.log("[Buff] No effect defined") },
 			harmful : false,
 			
-			init: function( duration, effect, harmful ){
+			init: function( duration, effect, data ){
 				this.lifetime = 0;
 				this.duration = duration || 1;
 				this.effect = effect || function(){ CAAT.log("[Buff] No effect defined") };
-				this.harmful = harmful || false;
+				if ( data ) {
+					this.harmful = data.harmful;
+					this.modSpeed = data.modSpeed;
+					this.modDamage = data.modDamage;
+					// modLife
+					// modArmor
+					//etc.
+				}
 			},
 			
 			initWithName : function( name ){
 				var data = game.buffBook[ name ];
-				this.init( data.duration, data.effect, data.harmful );
+				this.init( data.duration, data.effect, data );
 				return this;
 			},
 			

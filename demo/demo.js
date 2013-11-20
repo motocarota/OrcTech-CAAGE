@@ -70,6 +70,7 @@
 		menuScene.activated = function() {
 			director.setClear( CAAT.Foundation.Director.CLEAR_ALL );
 		};
+		
 		var btn = new CAAT.Foundation.Actor( ).
 			setAsButton( 
 				new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( 'base' ), 1, 3 ),

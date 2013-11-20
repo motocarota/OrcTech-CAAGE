@@ -23,9 +23,12 @@
 		setup : function( type ){
 			
 			if ( !type || !game.dropList ) {
+				if ( _DEBUG ) CAAT.log( "[Drop] Setup failed, no data found!" );
 				return -1;
+			} else {
+				if ( _DEBUG ) CAAT.log( "[Drop] Setup found data!" );
 			}
-			this.type = type || game.dropList[ roll( 0, game.dropList.length ) ];
+			this.type = type || randomFrom( game.dropList );
 			this.id = this.type+roll( 1, 999 );
 			
 			var data = game.dropTable[ this.type ];
@@ -38,14 +41,17 @@
 		
 		add : function( type, x, y ) {
 			
-			this.x = x || roll( 1, director.width );
-			this.y = y || roll( 1, director.height );
+			var opts = game.options.drop;
+			this.x = x || roll( 1, opts.dest.w, opts.dest.x );
+			this.y = y || roll( 1, opts.dest.h, opts.dest.y );
 			if ( this.setup( type ) === -1 ) {
+				if ( _DEBUG ) CAAT.log( "[Drop] drop type not found: "+type );
 				return -1;
+			} else {
+				if ( _DEBUG ) CAAT.log( "[Drop] drop type found: "+type+" --> "+this );
 			}
 			var drop = this;
-			var image = new CAAT.Foundation.SpriteImage( ).
-				initialize( director.getImage( 'items' ), 2, 3 );
+			var image = new CAAT.Foundation.SpriteImage( ).initialize( director.getImage( opts.file ), opts.frameW, opts.frameH );
 
 			this.setLocation( this.x, this.y ).
 				setBackgroundImage( image ).

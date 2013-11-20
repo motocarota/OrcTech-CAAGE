@@ -17,6 +17,15 @@ function getDistance ( en0, en1 ) {
 	return Math.floor( Math.sqrt( dx*dx + dy*dy ) );
 }
 
+function randomFrom( array ){
+	
+	//Returns a random element from a list
+	if ( is( "Array", array ) ) {
+		var id = Math.floor( Math.random()*array.length );
+		return array[ id ];
+	}
+}
+
 function roll( num, dice, bonus, crit_mult ){
 
 	// Returns rolls NUM d DICE plus BONUS (ex. roll( 3, 6, 5 ) -> 3d6+5 )

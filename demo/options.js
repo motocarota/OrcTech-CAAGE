@@ -5,6 +5,14 @@ function setupOptions( ) {
 		font :				"26px Arial",
 		cell_size: 			30,
 		global_cooldown :	50,		// determine how often the game calls the tick() method
+		drop:{
+			file: "items", 
+			frameW: 3, 
+			frameH: 3,
+			dest: {
+				x: 1, y: 1, w: 900, h: 600
+			}
+		},
 		player: {
 			startingX: 		80,
 			startingY: 		180,

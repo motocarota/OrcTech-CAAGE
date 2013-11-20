@@ -1,7 +1,7 @@
 (function() {	
 
-	var _DEBUG = 		1,//false,
- 		_SHOW_PATH = 	1//false;
+	var _DEBUG = 		false,
+ 		_SHOW_PATH = 	false;
 	
 	CAAT.Enemy = function( ){
 		CAAT.Enemy.superclass.constructor.call( this );		
@@ -29,7 +29,6 @@
 		tick_done:		0,
 		regeneration: 	0,
 		summoned:		false,
-		_bonus_damage: 	0,
 		_dest:			{ x:0, y:0 },
 		_t:				0,
 		
@@ -54,7 +53,7 @@
 			this.setup( );
 			
 			this.x = director.width + this.width;
-			this.y = (director.height/4)+Math.random()*(director.height*3/4);
+			this.y = ( director.height/4 )+Math.random()*( director.height*3/4 );
 			
 			this.sprite = new CAAT.Foundation.SpriteImage().initialize( 
 				director.getImage( this.type ), 
@@ -97,8 +96,19 @@
 		
 		getDamage: function( ) { 
 			
-			var bonus = this.level + this._bonus_damage;
-			return roll( 2, this.level, bonus ); 
+			var bonus = 0;
+			var malus = 0;
+			for ( b in this.buffs ) {
+				var amt = this.buffs[b].modDamage || null;
+				 if ( amt && is( 'Number', amt ) ) {
+					if ( this.buffs[b].harmful ){
+						malus = malus > amt ? malus : amt;
+					} else {
+						bonus = bonus > amt ? bonus : amt;
+					}
+				 }
+			}
+			return roll( 2, this.level, ( bonus-malus ) ); 
 		},
 		
 		
@@ -138,7 +148,7 @@
 		refreshSpeed: function() {
 			
 			if ( _DEBUG ) CAAT.log( '[Enemy] '+this.id+' refresh his speed' );
-			this.move( this._dest.x, this._dest.y );
+			this.move( );
 		},
 		
 		
@@ -314,7 +324,7 @@
 			for ( var i=0; i < this.buffs.length; i++ ) {
 				if ( this.moving && this.buffs[i].modSpeed ) {
 					if( _DEBUG ) CAAT.log( "[Enemy] "+this.id+"'s buff "+i+" changes target's speed" );
-					this.move( );
+					// this.move( this._dest.x, this._dest.y );
 				}
 				if ( this.buffs[i].isActive() ) {
 					this.buffs[i].tick();
