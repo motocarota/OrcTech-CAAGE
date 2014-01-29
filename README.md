@@ -7,7 +7,8 @@ With this game engine you have a standard setup of classes to deal with
 * Player
 * Enemies
 * Drop
-* Spell and Effects
+* Spells
+* Effects
 
 For each of these class you can define a set of data to implement your own game with a defined structure.
 It also features a component system to define common entities qualities for every actor in the game.
