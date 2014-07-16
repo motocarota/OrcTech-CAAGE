@@ -16652,11 +16652,13 @@ CAAT.Module({
 
             getWidth:function () {
                 var el = this.mapInfo[this.spriteIndex];
+				if (el)
                 return el.width;
             },
 
             getHeight:function () {
                 var el = this.mapInfo[this.spriteIndex];
+				if (el)
                 return el.height;
             },
 
@@ -16757,6 +16759,7 @@ CAAT.Module({
                     this.height= image.mapInfo[0].height;
 
                 } else {
+					if ( !image ) return this;
                     this.image = image;
                     this.width = image.width;
                     this.height = image.height;
@@ -16995,7 +16998,7 @@ CAAT.Module({
             paintN:function (director, time, x, y) {
 
                 var el = this.mapInfo[this.spriteIndex];
-
+				if ( el )
                 director.ctx.drawImage(
                     this.image,
                     el.x, el.y,

@@ -67,6 +67,7 @@
 		window.director.setImagesCache( images );
 		window.gameScene = director.createScene( );
 		window.menuScene = director.createScene( );
+		game.killCount = 0;
 		menuScene.activated = function() {
 			director.setClear( CAAT.Foundation.Director.CLEAR_ALL );
 		};

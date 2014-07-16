@@ -46,14 +46,15 @@
 		},
 		
 		
-		add : function( type, summoned ) {
+		add : function( type, opts ) {
 			
 			this.type = type;
-			this.summoned = summoned;
+			opts = opts || {};
+			this.opts = opts.summoned;
 			this.setup( );
 			
-			this.x = director.width + this.width;
-			this.y = ( director.height/4 )+Math.random()*( director.height*3/4 );
+			this.x = opts.x || director.width + this.width;
+			this.y = opts.y || ( director.height/4 )+Math.random()*( director.height*3/4 );
 			
 			this.sprite = new CAAT.Foundation.SpriteImage().initialize( 
 				director.getImage( this.type ), 
@@ -251,9 +252,8 @@
 			// this.playAnimation( 'die' );
 			for ( var i = game.enemies.length - 1; i >= 0; i-- ) {
 				if ( game.enemies[i].id === this.id ) {
-					if ( !this.summoned ) { //only genuine enemies do count, summoned ones don't
-						game.killCount++;
-					}
+					game.killCount++;
+					CAAT.log('killed an enemy: '+game.killCount)
 					game.enemies.splice( i, 1 );
 					game.bg.removeChild( this );
 					
